@@ -1,3 +1,4 @@
+import Link from "next/link";
 import data from "../../data/espresso.json";
 
 export default function Home() {
@@ -12,9 +13,14 @@ export default function Home() {
         reveals about the economy behind the counter. {counts.surveyed}{" "}
         surveyed · {counts.derived} derived · {counts.modeled} modeled.
       </p>
+      <Link
+        href="/rankings"
+        className="inline-flex min-h-[44px] items-center rounded-[6px] bg-crema px-6 font-medium text-espresso hover:brightness-105"
+      >
+        Explore the rankings →
+      </Link>
       <p className="text-modeled text-sm">
-        Site under construction — rankings, map, and methodology land this
-        week.
+        Map and live macro strip land this week.
       </p>
     </main>
   );
