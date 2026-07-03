@@ -1,0 +1,197 @@
+rank,iso3,name,region,priceUSD,priceLow,priceHigh,tier,gdpPerCapitaUSD,gdpYear,burdenPct,source,updated
+1,DNK,Denmark,Europe,4.3,3.78,4.82,surveyed,76970.15,2025,2.04,Espresso surveys and price-index data (2026),2026-07-02
+2,ISL,Iceland,Europe,4.2,2.52,5.88,modeled,98323.48,2025,1.56,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+3,ARE,United Arab Emirates,Middle East,4.15,3.65,4.65,surveyed,50273.51,2024,3.01,Espresso surveys and price-index data (2026),2026-07-02
+4,CHE,Switzerland,Europe,4.1,3.61,4.59,surveyed,114769.01,2025,1.3,Espresso surveys and price-index data (2026),2026-07-02
+5,KWT,Kuwait,Middle East,4,3.52,4.48,surveyed,32312.31,2025,4.52,Espresso surveys and price-index data (2026),2026-07-02
+5,LIE,Liechtenstein,Europe,4,2.4,5.6,modeled,220167.23,2024,0.66,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+5,QAT,Qatar,Middle East,4,3.52,4.48,surveyed,72524.91,2025,2.01,Espresso surveys and price-index data (2026),2026-07-02
+8,HKG,Hong Kong,Asia,3.95,3.48,4.42,surveyed,56983.07,2025,2.53,Espresso surveys and price-index data (2026),2026-07-02
+9,MDV,Maldives,Asia,3.5,2.1,4.9,modeled,14614.72,2025,8.74,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+9,MCO,Monaco,Europe,3.5,2.1,4.9,modeled,288001.57,2024,0.44,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+11,SGP,Singapore,Asia,3.45,3.04,3.86,surveyed,98813.98,2025,1.27,Espresso surveys and price-index data (2026),2026-07-02
+12,BHS,Bahamas,Caribbean,3.4,2.04,4.76,modeled,39455.45,2024,3.15,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+12,USA,United States,North America,3.4,2.99,3.81,surveyed,90026.52,2025,1.38,Espresso surveys and price-index data (2026),2026-07-02
+14,FIN,Finland,Europe,3.3,2.9,3.7,surveyed,56148.58,2025,2.15,Espresso surveys and price-index data (2026),2026-07-02
+14,NOR,Norway,Europe,3.3,2.9,3.7,surveyed,94594.19,2025,1.27,Espresso surveys and price-index data (2026),2026-07-02
+14,SWE,Sweden,Europe,3.3,2.9,3.7,surveyed,63133.21,2025,1.91,Espresso surveys and price-index data (2026),2026-07-02
+17,ISR,Israel,Middle East,3.25,2.6,3.9,derived,60336.85,2025,1.97,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+18,BRB,Barbados,Caribbean,3.2,1.92,4.48,modeled,28364.82,2025,4.12,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+18,PLW,Palau,Oceania,3.2,1.92,4.48,modeled,19532.36,2025,5.98,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+20,BHR,Bahrain,Middle East,3.15,2.52,3.78,derived,30596.58,2025,3.76,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+21,OMN,Oman,Middle East,3.1,2.48,3.72,derived,19947.4,2025,5.67,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+22,GBR,United Kingdom,Europe,3.05,2.68,3.42,surveyed,57601.96,2025,1.93,Espresso surveys and price-index data (2026),2026-07-02
+23,ATG,Antigua and Barbuda,Caribbean,3,1.8,4.2,modeled,24819.25,2025,4.41,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+23,IRL,Ireland,Europe,3,2.64,3.36,surveyed,131592.46,2025,0.83,Espresso surveys and price-index data (2026),2026-07-02
+23,MHL,Marshall Islands,Oceania,3,1.8,4.2,modeled,8489.06,2025,12.9,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+23,SYC,Seychelles,Africa,3,1.8,4.2,modeled,19449.38,2025,5.63,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+23,KNA,St. Kitts and Nevis,Caribbean,3,1.8,4.2,modeled,25223.03,2025,4.34,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+28,FSM,Micronesia,Oceania,2.9,1.74,4.06,modeled,4414.01,2025,23.98,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+28,LCA,St. Lucia,Caribbean,2.9,1.74,4.06,modeled,14745.82,2025,7.18,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+30,CRI,Costa Rica,Central America,2.85,2.28,3.42,derived,19970.1,2025,5.21,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+30,LUX,Luxembourg,Europe,2.85,2.28,3.42,derived,147252.18,2025,0.71,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+32,AUT,Austria,Europe,2.8,2.46,3.14,surveyed,62930.04,2025,1.62,Espresso surveys and price-index data (2026),2026-07-02
+32,CAN,Canada,North America,2.8,2.46,3.14,surveyed,55697.66,2025,1.83,Espresso surveys and price-index data (2026),2026-07-02
+32,GRD,Grenada,Caribbean,2.8,1.68,3.92,modeled,12106.88,2025,8.44,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+32,NRU,Nauru,Oceania,2.8,1.68,3.92,modeled,14639.5,2025,6.98,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+32,URY,Uruguay,South America,2.8,2.24,3.36,derived,25215.82,2025,4.05,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+37,EST,Estonia,Europe,2.75,2.2,3.3,derived,34417.63,2025,2.92,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+38,DMA,Dominica,Caribbean,2.7,1.62,3.78,modeled,10989.04,2025,8.97,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+38,KOR,South Korea,Asia,2.7,2.38,3.02,surveyed,36226.97,2025,2.72,Espresso surveys and price-index data (2026),2026-07-02
+38,VCT,St. Vincent and the Grenadines,Caribbean,2.7,1.62,3.78,modeled,12561.77,2025,7.85,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+38,TUV,Tuvalu,Oceania,2.7,1.62,3.78,modeled,6344.78,2023,15.53,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+42,AUS,Australia,Oceania,2.6,2.29,2.91,surveyed,65129.72,2025,1.46,Espresso surveys and price-index data (2026),2026-07-02
+42,BEL,Belgium,Europe,2.6,2.29,2.91,surveyed,60750.27,2025,1.56,Espresso surveys and price-index data (2026),2026-07-02
+42,DEU,Germany,Europe,2.6,2.29,2.91,surveyed,60496.44,2025,1.57,Espresso surveys and price-index data (2026),2026-07-02
+42,KIR,Kiribati,Oceania,2.6,1.56,3.64,modeled,2558.67,2025,37.09,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+42,NLD,Netherlands,Europe,2.6,2.29,2.91,surveyed,73683.92,2025,1.29,Espresso surveys and price-index data (2026),2026-07-02
+42,NZL,New Zealand,Oceania,2.6,2.29,2.91,surveyed,49591.04,2025,1.91,Espresso surveys and price-index data (2026),2026-07-02
+48,CYP,Cyprus,Europe,2.55,2.04,3.06,derived,41783.09,2025,2.23,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+49,FRA,France,Europe,2.5,2.2,2.8,surveyed,48985.73,2025,1.86,Espresso surveys and price-index data (2026),2026-07-02
+49,GRC,Greece,Europe,2.5,2.2,2.8,surveyed,26948.01,2025,3.39,Espresso surveys and price-index data (2026),2026-07-02
+49,PNG,Papua New Guinea,Oceania,2.5,1.5,3.5,modeled,3019.53,2025,30.22,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+49,POL,Poland,Europe,2.5,2.2,2.8,surveyed,28419.58,2025,3.21,Espresso surveys and price-index data (2026),2026-07-02
+49,TON,Tonga,Oceania,2.5,1.5,3.5,modeled,6547.19,2025,13.94,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+54,LTU,Lithuania,Europe,2.45,1.96,2.94,derived,32958.67,2025,2.71,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+54,PAN,Panama,Central America,2.45,1.96,2.94,derived,19789.73,2025,4.52,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+56,CHN,China,Asia,2.4,2.11,2.69,surveyed,13861.97,2025,6.32,Espresso surveys and price-index data (2026),2026-07-02
+56,JAM,Jamaica,Caribbean,2.4,1.44,3.36,modeled,8002.92,2025,10.95,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+56,JOR,Jordan,Middle East,2.4,1.92,2.88,derived,5347.78,2025,16.38,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+56,MEX,Mexico,North America,2.4,2.11,2.69,surveyed,13889.23,2025,6.31,Espresso surveys and price-index data (2026),2026-07-02
+56,WSM,Samoa,Oceania,2.4,1.44,3.36,modeled,5872.78,2025,14.92,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+56,VUT,Vanuatu,Oceania,2.4,1.44,3.36,modeled,4038.74,2025,21.69,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+62,SAU,Saudi Arabia,Middle East,2.35,1.88,2.82,derived,34536.66,2025,2.48,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+63,JPN,Japan,Asia,2.3,2.02,2.58,surveyed,35951.04,2025,2.34,Espresso surveys and price-index data (2026),2026-07-02
+63,SLB,Solomon Islands,Oceania,2.3,1.38,3.22,modeled,2086.19,2025,40.24,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+63,TTO,Trinidad and Tobago,Caribbean,2.3,1.38,3.22,modeled,18967.27,2025,4.43,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+66,ARG,Argentina,South America,2.25,1.98,2.52,surveyed,14898.09,2025,5.51,Espresso surveys and price-index data (2026),2026-07-02
+66,TUR,Turkey,Middle East,2.25,1.98,2.52,surveyed,18599.44,2025,4.42,Espresso surveys and price-index data (2026),2026-07-02
+68,BLZ,Belize,Central America,2.2,1.32,3.08,modeled,7865.48,2025,10.21,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+68,BRN,Brunei,Asia,2.2,1.32,3.08,modeled,32234.64,2025,2.49,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+68,FJI,Fiji,Oceania,2.2,1.32,3.08,modeled,6642,2025,12.09,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+68,LVA,Latvia,Europe,2.2,1.76,2.64,derived,26311.97,2025,3.05,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+68,LBN,Lebanon,Middle East,2.2,1.76,2.64,derived,4473.27,2024,17.95,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+73,AZE,Azerbaijan,Asia,2.15,1.72,2.58,derived,7410.72,2025,10.59,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+74,GAB,Gabon,Africa,2.1,1.26,2.94,modeled,8263.03,2025,9.28,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+74,GHA,Ghana,Africa,2.1,1.26,2.94,modeled,3257.16,2025,23.53,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+76,ARM,Armenia,Asia,2.05,1.64,2.46,derived,9474.02,2025,7.9,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+76,CHL,Chile,South America,2.05,1.64,2.46,derived,17994.59,2025,4.16,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+76,CZE,Czech Republic,Europe,2.05,1.8,2.3,surveyed,35917.27,2025,2.08,Espresso surveys and price-index data (2026),2026-07-02
+79,GNQ,Equatorial Guinea,Africa,2,1.2,2.8,modeled,6615.25,2025,11.04,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+79,GTM,Guatemala,Central America,2,1.2,2.8,modeled,6598.18,2025,11.06,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+79,TWN,Taiwan,Asia,2,1.6,2.4,derived,,,,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+82,SVK,Slovakia,Europe,1.95,1.56,2.34,derived,28543.67,2025,2.49,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+83,AND,Andorra,Europe,1.9,1.14,2.66,modeled,54291.5,2025,1.28,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+83,SLV,El Salvador,Central America,1.9,1.14,2.66,modeled,5766.73,2025,12.03,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+83,GEO,Georgia,Asia,1.9,1.52,2.28,derived,9691.53,2025,7.16,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+83,GUY,Guyana,South America,1.9,1.14,2.66,modeled,32413.79,2025,2.14,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+83,CIV,Ivory Coast,Africa,1.9,1.14,2.66,modeled,3050.1,2025,22.74,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+83,MYS,Malaysia,Asia,1.9,1.52,2.28,derived,13124.56,2025,5.28,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+83,PRY,Paraguay,South America,1.9,1.14,2.66,modeled,7026.62,2025,9.87,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+83,ROU,Romania,Europe,1.9,1.52,2.28,derived,22537.95,2025,3.08,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+91,MLT,Malta,Europe,1.85,1.48,2.22,derived,47906.9,2025,1.41,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+91,PER,Peru,South America,1.85,1.48,2.22,derived,9684.41,2025,6.97,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+93,AGO,Angola,Africa,1.8,1.08,2.52,modeled,3129.48,2025,20.99,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+93,HND,Honduras,Central America,1.8,1.08,2.52,modeled,3598.21,2025,18.26,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+93,HUN,Hungary,Europe,1.8,1.44,2.16,derived,25907.47,2025,2.54,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+93,MNG,Mongolia,Asia,1.8,1.08,2.52,modeled,7108.23,2025,9.24,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+93,RUS,Russia,Europe,1.8,1.44,2.16,derived,17546.61,2025,3.74,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+93,SEN,Senegal,Africa,1.8,1.08,2.52,modeled,1954.71,2025,33.61,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+93,SUR,Suriname,South America,1.8,1.08,2.52,modeled,7069.87,2025,9.29,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+100,IRQ,Iraq,Middle East,1.75,1.4,2.1,derived,5409.68,2025,11.81,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+100,ZWE,Zimbabwe,Africa,1.75,1.4,2.1,derived,3021.43,2025,21.14,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+102,HRV,Croatia,Europe,1.7,1.36,2.04,derived,27103.91,2025,2.29,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+102,MNE,Montenegro,Europe,1.7,1.36,2.04,derived,14816.84,2025,4.19,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+102,NIC,Nicaragua,Central America,1.7,1.02,2.38,modeled,3173.34,2025,19.55,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+102,ZMB,Zambia,Africa,1.7,1.02,2.38,modeled,1317.88,2025,47.08,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+106,BOL,Bolivia,South America,1.65,1.32,1.98,derived,5147.81,2025,11.7,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+106,BGR,Bulgaria,Europe,1.65,1.32,1.98,derived,20328.17,2025,2.96,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+106,ECU,Ecuador,South America,1.65,1.32,1.98,derived,7125.28,2025,8.45,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+106,MUS,Mauritius,Africa,1.65,1.32,1.98,derived,12991.29,2025,4.64,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+106,SVN,Slovenia,Europe,1.65,1.32,1.98,derived,37376.22,2025,1.61,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+106,VEN,Venezuela,South America,1.65,1.32,1.98,derived,3494.81,2025,17.23,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+112,BWA,Botswana,Africa,1.6,0.96,2.24,modeled,7778.12,2025,7.51,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,KHM,Cambodia,Asia,1.6,0.96,2.24,modeled,2872.43,2025,20.33,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,CMR,Cameroon,Africa,1.6,0.96,2.24,modeled,1972.38,2025,29.61,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,COD,DR Congo,Africa,1.6,0.96,2.24,modeled,806.78,2025,72.39,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,HTI,Haiti,Caribbean,1.6,0.96,2.24,modeled,2694.19,2025,21.68,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,KAZ,Kazakhstan,Asia,1.6,1.28,1.92,derived,14692.13,2025,3.97,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+112,KGZ,Kyrgyzstan,Asia,1.6,0.96,2.24,modeled,3080.97,2025,18.96,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,COG,Republic of Congo,Africa,1.6,0.96,2.24,modeled,2514.73,2025,23.22,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+112,LKA,Sri Lanka,Asia,1.6,1.28,1.92,derived,5002.08,2025,11.68,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+121,NGA,Nigeria,Africa,1.55,1.24,1.86,derived,1224.25,2025,46.21,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+122,BTN,Bhutan,Asia,1.5,0.9,2.1,modeled,4492.78,2025,12.19,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,DJI,Djibouti,Africa,1.5,0.9,2.1,modeled,3905.6,2025,14.02,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,KEN,Kenya,Africa,1.5,1.2,1.8,derived,2362.86,2025,23.17,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+122,LAO,Laos,Asia,1.5,0.9,2.1,modeled,2324.76,2025,23.55,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,MOZ,Mozambique,Africa,1.5,0.9,2.1,modeled,626.91,2025,87.33,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,NAM,Namibia,Africa,1.5,0.9,2.1,modeled,4875.93,2025,11.23,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,PRT,Portugal,Europe,1.5,1.32,1.68,surveyed,32081.81,2025,1.71,Espresso surveys and price-index data (2026),2026-07-02
+122,RWA,Rwanda,Africa,1.5,0.9,2.1,modeled,1123.74,2025,48.72,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,SMR,San Marino,Europe,1.5,0.9,2.1,modeled,59871.33,2023,0.91,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,ESP,Spain,Europe,1.5,1.32,1.68,surveyed,38627.25,2025,1.42,Espresso surveys and price-index data (2026),2026-07-02
+122,TZA,Tanzania,Africa,1.5,0.9,2.1,modeled,1318.82,2025,41.51,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,TLS,Timor-Leste,Asia,1.5,0.9,2.1,modeled,1340.96,2025,40.83,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,TKM,Turkmenistan,Asia,1.5,0.9,2.1,modeled,6540.18,2025,8.37,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+122,VAT,Vatican City,Europe,1.5,0.9,2.1,modeled,,,,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+136,DOM,Dominican Republic,Caribbean,1.45,1.16,1.74,derived,11059.21,2025,4.79,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+136,IND,India,Asia,1.45,1.28,1.62,surveyed,2702.48,2025,19.58,Espresso surveys and price-index data (2026),2026-07-02
+136,IDN,Indonesia,Asia,1.45,1.28,1.62,surveyed,5059.63,2025,10.46,Espresso surveys and price-index data (2026),2026-07-02
+136,ITA,Italy,Europe,1.45,1.28,1.62,surveyed,43308.64,2025,1.22,Espresso surveys and price-index data (2026),2026-07-02
+136,PHL,Philippines,Asia,1.45,1.16,1.74,derived,4170.72,2025,12.69,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+136,SRB,Serbia,Europe,1.45,1.28,1.62,surveyed,15262.05,2025,3.47,Espresso surveys and price-index data (2026),2026-07-02
+136,ZAF,South Africa,Africa,1.45,1.16,1.74,derived,6597.71,2025,8.02,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+143,BLR,Belarus,Europe,1.4,1.12,1.68,derived,10279.25,2025,4.97,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+143,BEN,Benin,Africa,1.4,0.84,1.96,modeled,1658.27,2025,30.82,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+143,MWI,Malawi,Africa,1.4,0.84,1.96,modeled,671.51,2025,76.1,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+143,TJK,Tajikistan,Asia,1.4,0.84,1.96,modeled,1637.25,2025,31.21,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+143,THA,Thailand,Asia,1.4,1.12,1.68,derived,8056.56,2025,6.34,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+143,TGO,Togo,Africa,1.4,0.84,1.96,modeled,1383.9,2025,36.92,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+143,UGA,Uganda,Africa,1.4,0.84,1.96,modeled,1206.3,2025,42.36,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+150,ALB,Albania,Europe,1.35,1.08,1.62,derived,12998.15,2025,3.79,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+150,MLI,Mali,Africa,1.35,0.81,1.89,modeled,1193.28,2025,41.29,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+150,UZB,Uzbekistan,Asia,1.35,1.08,1.62,derived,3968.27,2025,12.42,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+150,VNM,Vietnam,Asia,1.35,1.19,1.51,surveyed,5065.99,2025,9.73,Espresso surveys and price-index data (2026),2026-07-02
+154,BFA,Burkina Faso,Africa,1.3,0.78,1.82,modeled,1147.57,2025,41.35,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+154,CPV,Cape Verde,Africa,1.3,0.78,1.82,modeled,5796.47,2025,8.19,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+154,TCD,Chad,Africa,1.3,0.78,1.82,modeled,1022.34,2025,46.41,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+154,GIN,Guinea,Africa,1.3,0.78,1.82,modeled,1877.25,2025,25.28,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+154,MMR,Myanmar,Asia,1.3,0.78,1.82,modeled,1488.88,2025,31.87,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+154,PAK,Pakistan,Asia,1.3,1.04,1.56,derived,1595.91,2025,29.73,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+160,BRA,Brazil,South America,1.25,1.1,1.4,surveyed,10713.29,2025,4.26,Espresso surveys and price-index data (2026),2026-07-02
+160,MRT,Mauritania,Africa,1.25,0.75,1.75,modeled,2197.51,2025,20.76,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+160,NER,Niger,Africa,1.25,0.75,1.75,modeled,775.35,2025,58.84,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,AFG,Afghanistan,Asia,1.2,0.72,1.68,modeled,416.87,2024,105.07,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,BGD,Bangladesh,Asia,1.2,0.96,1.44,derived,2597.34,2025,16.86,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+163,CAF,Central African Republic,Africa,1.2,0.72,1.68,modeled,556.13,2025,78.76,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,SWZ,Eswatini,Africa,1.2,0.72,1.68,modeled,4108.25,2025,10.66,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,GMB,Gambia,Africa,1.2,0.72,1.68,modeled,919.06,2025,47.66,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,LSO,Lesotho,Africa,1.2,0.72,1.68,modeled,1088.96,2025,40.22,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,LBR,Liberia,Africa,1.2,0.72,1.68,modeled,915.33,2025,47.85,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+163,MDA,Moldova,Europe,1.2,0.96,1.44,derived,8621.72,2025,5.08,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+163,MKD,North Macedonia,Europe,1.2,0.96,1.44,derived,10489.93,2025,4.18,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+163,SLE,Sierra Leone,Africa,1.2,0.72,1.68,modeled,846.3,2025,51.75,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+173,BIH,Bosnia and Herzegovina,Europe,1.15,1.01,1.29,surveyed,10381.85,2025,4.04,Espresso surveys and price-index data (2026),2026-07-02
+173,COL,Colombia,South America,1.15,1.01,1.29,surveyed,8561.62,2025,4.9,Espresso surveys and price-index data (2026),2026-07-02
+173,COM,Comoros,Africa,1.15,0.69,1.61,modeled,2055.76,2025,20.42,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+173,MAR,Morocco,Africa,1.15,0.92,1.38,derived,4672.47,2025,8.98,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+177,GNB,Guinea-Bissau,Africa,1.1,0.66,1.54,modeled,1123.77,2025,35.73,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+177,STP,Sao Tome and Principe,Africa,1.1,0.66,1.54,modeled,4084.4,2025,9.83,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+179,CUB,Cuba,Caribbean,1.05,0.84,1.26,derived,9605.28,2020,3.99,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+180,XKX,Kosovo,Europe,1,0.8,1.2,derived,7899.42,2025,4.62,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+180,LBY,Libya,Africa,1,0.6,1.4,modeled,6448.82,2025,5.66,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+180,MDG,Madagascar,Africa,1,0.6,1.4,modeled,599.27,2025,60.91,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+180,SYR,Syria,Middle East,1,0.6,1.4,modeled,1056.78,2022,34.54,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+184,EGY,Egypt,Africa,0.95,0.76,1.14,derived,3085.81,2025,11.24,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+184,NPL,Nepal,Asia,0.95,0.76,1.14,derived,1535.88,2025,22.58,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+184,UKR,Ukraine,Europe,0.95,0.76,1.14,derived,5865.88,2025,5.91,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+187,BDI,Burundi,Africa,0.9,0.54,1.26,modeled,233.82,2025,140.49,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+187,SSD,South Sudan,Africa,0.9,0.54,1.26,modeled,1080.15,2015,30.41,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+187,YEM,Yemen,Middle East,0.9,0.54,1.26,modeled,633.89,2018,51.82,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+190,SOM,Somalia,Africa,0.85,0.51,1.19,modeled,661.17,2025,46.92,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+191,SDN,Sudan,Africa,0.8,0.48,1.12,modeled,1164.54,2025,25.07,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+192,ERI,Eritrea,Africa,0.75,0.45,1.05,modeled,688.68,2011,39.75,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+192,IRN,Iran,Middle East,0.75,0.6,0.9,derived,3924.38,2025,6.98,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+194,ETH,Ethiopia,Africa,0.7,0.42,0.98,modeled,932.73,2025,27.39,Modeled from regional anchors and cost-of-living relationships (±40%),2026-07-02
+195,TUN,Tunisia,Africa,0.65,0.52,0.78,derived,4656.64,2025,5.09,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02
+196,DZA,Algeria,Africa,0.6,0.48,0.72,derived,6051,2025,3.62,"Derived from cappuccino index, ~65% conversion (2026)",2026-07-02

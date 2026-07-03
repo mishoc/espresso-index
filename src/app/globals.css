@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+/* The Espresso Index — SPEC.md §3 design tokens.
+   Editorial economics meets specialty coffee. Not a SaaS dashboard. */
+:root {
+  --espresso: #2b1b12; /* text / dark */
+  --crema: #c89a5b; /* accent / CTA */
+  --porcelain: #faf6f0; /* page background */
+  --paper: #ffffff; /* cards */
+  --roast: #6b4a32; /* secondary / borders */
+  --verified: #2e7d5b; /* surveyed tier */
+  --caution: #b8860b; /* derived tier */
+  --modeled: #8a8578; /* modeled tier */
+  --error: #a63d2f;
+  --card-border: #ede6db;
+}
+
+@theme inline {
+  --color-espresso: var(--espresso);
+  --color-crema: var(--crema);
+  --color-porcelain: var(--porcelain);
+  --color-paper: var(--paper);
+  --color-roast: var(--roast);
+  --color-verified: var(--verified);
+  --color-caution: var(--caution);
+  --color-modeled: var(--modeled);
+  --color-error: var(--error);
+  --color-card-border: var(--card-border);
+  --font-display: var(--font-fraunces);
+  --font-sans: var(--font-inter);
+  --radius-card: 12px;
+}
+
+body {
+  background: var(--porcelain);
+  color: var(--espresso);
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 26px;
+}
+
+/* Price columns must align (SPEC §3) */
+.tabular {
+  font-variant-numeric: tabular-nums;
+  font-size: 15px;
+}

@@ -101,12 +101,12 @@ Single source of truth, versioned in git, edited only via PR. Record schema:
   "iso3": "ITA", "name": "Italy", "region": "Europe",
   "priceUSD": 1.45, "priceLow": 1.30, "priceHigh": 1.60,
   "tier": "surveyed", "source": "...",
-  "gdpPerCapitaUSD": null, "burdenPct": null, "rank": null,
+  "gdpPerCapitaUSD": null, "gdpYear": null, "burdenPct": null, "rank": null,
   "updated": "2026-07-02"
 }
 ```
 
-Rules: `tier` ∈ `surveyed | derived | modeled`, required · `iso3` is the universal join key (World Bank, topojson, flags) · `burdenPct = priceUSD / (gdpPerCapitaUSD/365) × 100` · missing GDP → `burdenPct: null` → render "—" with tooltip · `rank`, `gdpPerCapitaUSD`, `burdenPct` are **script-owned** — never hand-edited · top-level metadata `{version, generated, counts, total}` feeds the Rankings counts line so it can never drift.
+Rules: `tier` ∈ `surveyed | derived | modeled`, required · `iso3` is the universal join key (World Bank, topojson, flags) · `burdenPct = priceUSD / (gdpPerCapitaUSD/365) × 100` · missing GDP → `burdenPct: null` → render "—" with tooltip · `rank`, `gdpPerCapitaUSD`, `gdpYear`, `burdenPct` are **script-owned** — never hand-edited (`gdpYear` backs the "as of" staleness display in Appendix A) · top-level metadata `{version, generated, counts, total}` feeds the Rankings counts line so it can never drift.
 
 ### 6.2 Build scripts (`scripts/`)
 - **build-burden.ts** — World Bank `NY.GDP.PCAP.CD` via `api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&mrnev=1&per_page=400`; computes burden, recomputes rank, rewrites JSON. Run quarterly via PR. Rank semantics: competition ranking on `priceUSD` descending (ties share the minimum rank, next rank skips — 1, 2, 2, 4), rank 1 = most expensive; tied economies display alphabetically by name.
