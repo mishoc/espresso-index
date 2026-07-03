@@ -52,7 +52,7 @@ The Big Mac Index for the espresso age: a free website that turns espresso price
 
 **Direction:** editorial economics meets specialty coffee — The Economist's data confidence, a café's warmth. Not a SaaS dashboard.
 
-**Palette:** `--espresso #2B1B12` (text/dark) · `--crema #C89A5B` (accent/CTA) · `--porcelain #FAF6F0` (bg) · `--paper #FFFFFF` (cards) · `--roast #6B4A32` (secondary/borders) · `--verified #2E7D5B` · `--caution #B8860B` · `--modeled #8A8578` · `--error #A63D2F`. Map choropleth stays sequential blues (colorblind-safe).
+**Palette:** `--espresso #2B1B12` (text/dark) · `--crema #C89A5B` (accent/CTA) · `--porcelain #FAF6F0` (bg) · `--paper #FFFFFF` (cards) · `--roast #6B4A32` (secondary/borders) · `--verified #2E7D5B` (surveyed tier) · `--caution #B8860B` (derived tier) · `--modeled #8A8578` (modeled tier) · `--error #A63D2F`. Map choropleth stays sequential blues (colorblind-safe).
 
 **Type:** Fraunces 600 for display (H1 40/48, hero stat 64 desktop / 40 mobile); Inter for body (16/26) and data (15px **tabular-nums** — price columns must align). Self-host via next/font.
 
@@ -72,12 +72,12 @@ Icons: Phosphor. Everything must hold at 375px.
 ## 4. 14-Day Build Plan
 
 **Week 1:**
-D1–2 scaffold (Next.js, Tailwind tokens, dataset in place, deploy pipeline live with empty shell — check domain availability Day 1) · D3–4 Rankings complete · D5 burden script (World Bank pull, baked at build) · D6–7 Homepage + choropleth port + `/design-html` pass.
+D1–2 scaffold (Next.js, Tailwind tokens, dataset in place, deploy pipeline live with empty shell — check domain availability Day 1) · D3 burden script (World Bank pull, baked at build) · D4–5 Rankings complete · D6–7 Homepage + choropleth port + `/design-html` pass.
 
 **Week 2:**
 D8 macro strip + FRED proxy w/ 6h cache · D9 Methodology/About/404 copy · D10 mobile pass at 375px · D11 `/qa` against checklist · D12 fixes (bonus feature only if clean by noon) · D13 `/review` + Lighthouse + OG images (the map screenshot is the marketing asset) · D14 `/land-and-deploy` + soft launch.
 
-**Definition of done:** all 196 economies on map + table with correct tiers; burden computed everywhere GDP exists (null-GDP rows render "—", never crash sort); site fully functional with all external APIs blocked; 375px clean; CSV + cite work; methodology answers every "where's this from?"; deployed on custom domain with OG cards.
+**Definition of done:** all 196 economies on map + table with correct tiers; burden computed everywhere GDP exists (null-GDP rows render "—", never crash sort, and always sort to the bottom regardless of sort direction); site fully functional with all external APIs blocked; 375px clean; CSV + cite work; methodology answers every "where's this from?"; deployed on custom domain with OG cards.
 
 ---
 
@@ -109,7 +109,7 @@ Single source of truth, versioned in git, edited only via PR. Record schema:
 Rules: `tier` ∈ `surveyed | derived | modeled`, required · `iso3` is the universal join key (World Bank, topojson, flags) · `burdenPct = priceUSD / (gdpPerCapitaUSD/365) × 100` · missing GDP → `burdenPct: null` → render "—" with tooltip · `rank`, `gdpPerCapitaUSD`, `burdenPct` are **script-owned** — never hand-edited · top-level metadata `{version, generated, counts, total}` feeds the Rankings counts line so it can never drift.
 
 ### 6.2 Build scripts (`scripts/`)
-- **build-burden.ts** — World Bank `NY.GDP.PCAP.CD` via `api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&mrnev=1&per_page=400`; computes burden, recomputes rank, rewrites JSON. Run quarterly via PR.
+- **build-burden.ts** — World Bank `NY.GDP.PCAP.CD` via `api.worldbank.org/v2/country/all/indicator/NY.GDP.PCAP.CD?format=json&mrnev=1&per_page=400`; computes burden, recomputes rank, rewrites JSON. Run quarterly via PR. Rank semantics: competition ranking on `priceUSD` descending (ties share the minimum rank, next rank skips — 1, 2, 2, 4), rank 1 = most expensive; tied economies display alphabetically by name.
 - **validate-data.ts** — CI on every commit: schema, unique iso3, price bounds $0.25–$8, tier counts match metadata, every iso3 exists in bundled topojson.
 - **build-csv.ts** — generates `public/espresso-index.csv` at build; the download button serves a static file.
 
@@ -141,15 +141,15 @@ Supabase free tier: `submissions` (id, iso3, city, price_local, currency, venue_
 6. Hand-editing script-owned fields
 7. No CI data validation — one typo'd price destroys credibility screenshots forever
 8. CSV from an API route — static file
-9. Unhandled null-GDP path (~8 economies) in burden sort
+9. Unhandled null-GDP path (2 economies: Taiwan, Vatican City — verified against World Bank API 2026-07-02) in burden sort
 10. Adding a database "just in case" — premature state is the 2-week-deadline killer
 
 ---
 
 ## Appendix A — Methodology copy points (for the page draft)
-- Tier definitions: **surveyed** = espresso surveys and price-index-backed data (40); **derived** = cappuccino-index conversion at ~65%, reflecting that espresso prices run 60–75% of cappuccino in milk-drink markets and independently lower in Southern European counter-service cultures (60); **modeled** = regional anchors + cost-of-living relationships, ±40% (96).
-- Honest caveats to state plainly: no global body tracks espresso prices; crowdsourced sources skew urban; modeled tier is an estimate, not a measurement; Argentina-style currency swings can move rankings quickly.
+- Tier definitions: **surveyed** = espresso surveys and price-index-backed data, ±12% confidence band (40); **derived** = cappuccino-index conversion at ~65%, reflecting that espresso prices run 60–75% of cappuccino in milk-drink markets and independently lower in Southern European counter-service cultures, ±20% band (60); **modeled** = regional anchors + cost-of-living relationships, ±40% band (96). The bands are encoded in every record's `priceLow`/`priceHigh`.
+- Honest caveats to state plainly: no global body tracks espresso prices; crowdsourced sources skew urban; modeled tier is an estimate, not a measurement; Argentina-style currency swings can move rankings quickly; World Bank GDP figures use the most recent available year and can lag badly (Eritrea 2011, South Sudan 2015, Yemen 2018, Cuba 2020) — burden shows an "as of" year where the GDP figure predates 2022; burden uses GDP per capita as a daily-income proxy, which is not disposable income — the biggest methodological leap on the site, stated plainly.
 - The count is 196 *economies*, not 195 UN states: includes Taiwan, Hong Kong, Kosovo, Vatican City; excludes North Korea (no market pricing).
 
 ## Appendix B — Hero stat rotation seeds
-"A shot in Copenhagen costs 7× a shot in Algiers." · "Ethiopia gave the world coffee. It charges the least for it." · "In Denmark, an espresso costs $4.30. In Bosnia, $1.15." · "Italy invented espresso — and ranks 73rd of 196 on price."
+"A shot in Copenhagen costs 7× a shot in Algiers." · "Ethiopia gave the world coffee. A shot there costs $0.70 — third-cheapest on Earth." · "In Denmark, an espresso costs $4.30. In Bosnia, $1.15." · "Italy invented espresso — and 135 countries charge more for it."
