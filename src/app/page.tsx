@@ -2,6 +2,7 @@ import Link from "next/link";
 import HeroStat from "@/components/HeroStat";
 import HomeMapSection from "@/components/HomeMapSection";
 import ExtremesStrip from "@/components/ExtremesStrip";
+import DataStrip from "@/components/DataStrip";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
         </Link>
       </section>
       <HomeMapSection />
+      <DataStrip />
       <ExtremesStrip />
     </main>
   );

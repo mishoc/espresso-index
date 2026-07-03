@@ -117,7 +117,7 @@ Rules: `tier` ∈ `surveyed | derived | modeled`, required · `iso3` is the univ
 ```
 GET /api/macro → 200 {
   coffeeCpiYoY, coffeeCpiDate,      // FRED series CUSR0000SEFP01, YoY computed server-side
-  arabicaUSDlb, arabicaDate,        // World Bank Pink Sheet monthly CSV
+  arabicaUSDlb, arabicaDate,        // FRED series PCOFFOTMUSDM (IMF Other Mild Arabicas, ¢/lb; WB Pink Sheet monthly is XLSX-only)
   fetchedAt, stale
 }
 ```
