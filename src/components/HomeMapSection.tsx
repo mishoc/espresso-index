@@ -1,17 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import EspressoMap from "./EspressoMap";
 
 /* 375px screens get the list (extremes strip below) by default;
-   the map stays one tap away (SPEC §2 edge cases). */
-export default function HomeMapSection() {
+   the map stays one tap away (SPEC §2 edge cases). The map itself is a
+   server-rendered child so its SVG ships in the initial HTML. */
+export default function HomeMapSection({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const [showOnMobile, setShowOnMobile] = useState(false);
 
   return (
     <section className="mx-auto w-full max-w-[1200px] px-6">
       <div className={showOnMobile ? "block" : "hidden sm:block"}>
-        <EspressoMap />
+        {children}
       </div>
       {!showOnMobile && (
         <button

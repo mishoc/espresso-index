@@ -31,7 +31,7 @@ export default function ExtremesStrip() {
           ))}
         </ul>
       </div>
-      <p className="text-sm text-modeled sm:col-span-2">
+      <p className="text-sm text-modeled-ink sm:col-span-2">
         <Link href="/rankings" className="underline underline-offset-4 hover:text-espresso">
           See all {dataset.total} economies →
         </Link>

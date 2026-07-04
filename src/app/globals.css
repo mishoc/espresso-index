@@ -13,6 +13,10 @@
   --modeled: #8a8578; /* modeled tier */
   --error: #a63d2f;
   --card-border: #ede6db;
+  /* AA-contrast text variants of the tier accents — the base tokens stay
+     for fills and borders; small text uses these (≥4.5:1 on all surfaces). */
+  --modeled-ink: #6b675c;
+  --caution-ink: #8a6508;
 }
 
 @theme inline {
@@ -24,6 +28,8 @@
   --color-verified: var(--verified);
   --color-caution: var(--caution);
   --color-modeled: var(--modeled);
+  --color-modeled-ink: var(--modeled-ink);
+  --color-caution-ink: var(--caution-ink);
   --color-error: var(--error);
   --color-card-border: var(--card-border);
   --font-display: var(--font-fraunces);

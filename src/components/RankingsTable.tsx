@@ -109,7 +109,7 @@ function SortHeader({
 function BurdenCell({ c }: { c: Country }) {
   if (c.burdenPct === null)
     return (
-      <span title="No World Bank GDP-per-capita data for this economy" className="text-modeled">
+      <span title="No World Bank GDP-per-capita data for this economy" className="text-modeled-ink">
         —
       </span>
     );
@@ -117,7 +117,7 @@ function BurdenCell({ c }: { c: Country }) {
   return (
     <span title={stale ? `GDP figure as of ${c.gdpYear}` : undefined}>
       {fmtBurden(c)}
-      {stale && <span className="text-modeled text-xs"> ({c.gdpYear})</span>}
+      {stale && <span className="text-modeled-ink text-xs"> ({c.gdpYear})</span>}
     </span>
   );
 }
@@ -204,7 +204,7 @@ export default function RankingsTable() {
         </div>
       </div>
 
-      <p className="mb-4 text-sm text-modeled">
+      <p className="mb-4 text-sm text-modeled-ink">
         {dataset.total} economies · {dataset.counts.surveyed} surveyed ·{" "}
         {dataset.counts.derived} derived · {dataset.counts.modeled} modeled ·{" "}
         <Link href="/methodology" className="underline underline-offset-4 hover:text-espresso">
@@ -242,7 +242,7 @@ export default function RankingsTable() {
                       <td className="px-3 py-2">
                         <span className="mr-2">{flagEmoji(c.iso3)}</span>
                         {c.name}
-                        <span className="ml-2 text-xs text-modeled">{c.region}</span>
+                        <span className="ml-2 text-xs text-modeled-ink">{c.region}</span>
                       </td>
                       <td className="tabular px-3 py-2 text-right">{fmtPrice(c.priceUSD)}</td>
                       <td className="tabular px-3 py-2 text-right">
@@ -274,7 +274,7 @@ export default function RankingsTable() {
                     </span>
                     <span className="tabular font-medium">{fmtPrice(c.priceUSD)}</span>
                   </div>
-                  <div className="mt-1 flex items-center justify-between text-xs text-modeled">
+                  <div className="mt-1 flex items-center justify-between text-xs text-modeled-ink">
                     <span>
                       Burden: <BurdenCell c={c} />
                     </span>

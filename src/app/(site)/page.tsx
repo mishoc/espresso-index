@@ -1,6 +1,7 @@
 import Link from "next/link";
 import HeroStat from "@/components/HeroStat";
 import HomeMapSection from "@/components/HomeMapSection";
+import MapServer from "@/components/MapServer";
 import ExtremesStrip from "@/components/ExtremesStrip";
 import DataStrip from "@/components/DataStrip";
 
@@ -16,7 +17,9 @@ export default function Home() {
           Explore the rankings →
         </Link>
       </section>
-      <HomeMapSection />
+      <HomeMapSection>
+        <MapServer />
+      </HomeMapSection>
       <DataStrip />
       <ExtremesStrip />
     </main>

@@ -52,7 +52,7 @@ export default function DataStrip() {
           <strong className="tabular text-espresso">
             {Math.round(macro.arabicaUSDlb * 100)}¢/lb
           </strong>{" "}
-          <span className="text-modeled">({monthLabel(macro.arabicaDate)})</span>
+          <span className="text-modeled-ink">({monthLabel(macro.arabicaDate)})</span>
         </span>
         <span>
           US coffee CPI{" "}
@@ -60,9 +60,9 @@ export default function DataStrip() {
             {macro.coffeeCpiYoY > 0 ? "+" : ""}
             {macro.coffeeCpiYoY.toFixed(1)}% YoY
           </strong>{" "}
-          <span className="text-modeled">({monthLabel(macro.coffeeCpiDate)})</span>
+          <span className="text-modeled-ink">({monthLabel(macro.coffeeCpiDate)})</span>
         </span>
-        <span className="text-xs text-modeled">{freshness(macro.fetchedAt)}</span>
+        <span className="text-xs text-modeled-ink">{freshness(macro.fetchedAt)}</span>
       </div>
     </section>
   );

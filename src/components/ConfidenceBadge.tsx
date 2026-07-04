@@ -2,8 +2,8 @@ import type { Tier } from "@/lib/types";
 
 const STYLES: Record<Tier, { label: string; cls: string }> = {
   surveyed: { label: "Surveyed", cls: "text-verified border-verified/40 bg-verified/5" },
-  derived: { label: "Derived", cls: "text-caution border-caution/40 bg-caution/5" },
-  modeled: { label: "Modeled", cls: "text-modeled border-modeled/40 bg-modeled/10" },
+  derived: { label: "Derived", cls: "text-caution-ink border-caution/40 bg-caution/5" },
+  modeled: { label: "Modeled", cls: "text-modeled-ink border-modeled/40 bg-modeled/10" },
 };
 
 export default function ConfidenceBadge({ tier }: { tier: Tier }) {

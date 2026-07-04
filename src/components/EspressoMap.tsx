@@ -1,42 +1,21 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { geoNaturalEarth1, geoPath } from "d3-geo";
-import { scaleSequential } from "d3-scale";
-import { interpolateBlues } from "d3-scale-chromatic";
-import { feature } from "topojson-client";
-import type { Topology, GeometryCollection } from "topojson-specification";
-import type { Feature, Geometry } from "geojson";
-import { iso31661 } from "iso-3166";
+import { useRef, useState } from "react";
 import { dataset, flagEmoji } from "@/lib/data";
 import type { Country } from "@/lib/types";
 
 const W = 960;
 const H = 500;
-const NO_DATA_FILL = "#e2ddd4";
 
-const NUM_TO_A3 = new Map(iso31661.map((c) => [c.numeric, c.alpha3]));
+export interface MapFeature {
+  key: string;
+  iso3?: string;
+  name: string;
+  d: string;
+  fill: string;
+}
+
 const BY_ISO3 = new Map(dataset.countries.map((c) => [c.iso3, c]));
-
-const prices = dataset.countries.map((c) => c.priceUSD);
-const [MIN, MAX] = [Math.min(...prices), Math.max(...prices)];
-// Sequential blues, colorblind-safe (SPEC §3). Start above 0 so the
-// cheapest countries stay distinguishable from the no-data gray.
-const color = scaleSequential(interpolateBlues).domain([MIN - 0.4, MAX]);
-
-interface CountryProps {
-  name?: string;
-}
-type CountryFeature = Feature<Geometry, CountryProps> & { id?: string | number };
-
-function iso3Of(f: CountryFeature): string | undefined {
-  if (f.id !== undefined) {
-    const a3 = NUM_TO_A3.get(String(f.id).padStart(3, "0"));
-    if (a3) return a3;
-  }
-  if (f.properties?.name === "Kosovo") return "XKX"; // no ISO numeric id
-  return undefined;
-}
 
 interface Tip {
   x: number;
@@ -46,51 +25,41 @@ interface Tip {
   label?: string;
 }
 
-export default function EspressoMap() {
-  const [features, setFeatures] = useState<CountryFeature[]>([]);
+export default function EspressoMap({
+  features,
+  legendStops,
+  min,
+  max,
+  noDataFill,
+}: {
+  features: MapFeature[];
+  legendStops: string[];
+  min: number;
+  max: number;
+  noDataFill: string;
+}) {
   const [tip, setTip] = useState<Tip | null>(null);
-  const [failed, setFailed] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    let alive = true;
-    fetch("/countries-50m.json")
-      .then((r) => (r.ok ? r.json() : Promise.reject(new Error(String(r.status)))))
-      .then((topo: Topology<{ countries: GeometryCollection<CountryProps> }>) => {
-        if (!alive) return;
-        const fc = feature(topo, topo.objects.countries);
-        setFeatures(fc.features as CountryFeature[]);
-      })
-      .catch(() => alive && setFailed(true));
-    return () => {
-      alive = false;
-    };
-  }, []);
-
-  if (failed) return null; // never a broken widget (SPEC §2)
-
-  const projection = geoNaturalEarth1().fitSize([W, H], {
-    type: "Sphere",
-  } as unknown as Feature<Geometry>);
-  const path = geoPath(projection);
-
-  const move = (e: React.MouseEvent, f: CountryFeature) => {
+  /* One delegated listener instead of 241 per-path handlers — keeps the
+     server-rendered SVG cheap to hydrate. */
+  const move = (e: React.MouseEvent) => {
+    const target = (e.target as Element).closest("path[data-name]");
     const rect = wrapRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const iso3 = iso3Of(f);
+    if (!target || !rect) {
+      setTip(null);
+      return;
+    }
+    const iso3 = target.getAttribute("data-iso3");
     const country = iso3 ? BY_ISO3.get(iso3) : undefined;
     setTip({
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
       w: rect.width,
       country,
-      label: country ? undefined : (f.properties?.name ?? "Unknown"),
+      label: country ? undefined : (target.getAttribute("data-name") ?? "Unknown"),
     });
   };
-
-  const legendStops = Array.from({ length: 10 }, (_, i) =>
-    color(MIN - 0.4 + ((MAX - MIN + 0.4) * i) / 9),
-  );
 
   return (
     <div ref={wrapRef} className="relative w-full">
@@ -99,34 +68,32 @@ export default function EspressoMap() {
         className="h-auto w-full"
         role="img"
         aria-label="World map of espresso prices"
+        onMouseMove={move}
+        onMouseLeave={() => setTip(null)}
       >
-        {features.map((f, idx) => {
-          const iso3 = iso3Of(f);
-          const c = iso3 ? BY_ISO3.get(iso3) : undefined;
-          return (
-            <path
-              key={`${iso3 ?? f.properties?.name ?? "g"}-${idx}`}
-              d={path(f) ?? undefined}
-              fill={c ? color(c.priceUSD) : NO_DATA_FILL}
-              stroke="#faf6f0"
-              strokeWidth={0.5}
-              onMouseMove={(e) => move(e, f)}
-              onMouseLeave={() => setTip(null)}
-              className="cursor-pointer"
-            />
-          );
-        })}
+        {features.map((f) => (
+          <path
+            key={f.key}
+            d={f.d}
+            fill={f.fill}
+            stroke="#faf6f0"
+            strokeWidth={0.5}
+            data-iso3={f.iso3}
+            data-name={f.name}
+            className="cursor-pointer"
+          />
+        ))}
       </svg>
 
       {/* legend */}
       <div className="mt-2 flex items-center gap-2 text-xs text-roast">
-        <span className="tabular">${MIN.toFixed(2)}</span>
+        <span className="tabular">${min.toFixed(2)}</span>
         <span
           className="h-2 w-40 rounded-full"
           style={{ background: `linear-gradient(to right, ${legendStops.join(",")})` }}
         />
-        <span className="tabular">${MAX.toFixed(2)}</span>
-        <span className="ml-3 inline-block h-3 w-3 rounded-[3px]" style={{ background: NO_DATA_FILL }} />
+        <span className="tabular">${max.toFixed(2)}</span>
+        <span className="ml-3 inline-block h-3 w-3 rounded-[3px]" style={{ background: noDataFill }} />
         <span>not in the index</span>
       </div>
 
@@ -144,12 +111,12 @@ export default function EspressoMap() {
               <p className="tabular">
                 ${tip.country.priceUSD.toFixed(2)} · rank {tip.country.rank}/{dataset.total}
               </p>
-              <p className="text-xs text-modeled capitalize">{tip.country.tier}</p>
+              <p className="text-xs text-modeled-ink capitalize">{tip.country.tier}</p>
             </>
           ) : (
             <>
               <p className="font-medium">{tip.label}</p>
-              <p className="text-xs text-modeled">
+              <p className="text-xs text-modeled-ink">
                 Not in the index — no reliable espresso pricing for this
                 territory yet.
               </p>

@@ -143,7 +143,7 @@ export default function MethodologyPage() {
           GDP per capita, most recent non-empty year.
         </li>
       </ul>
-      <p className="mt-6 text-sm text-modeled">
+      <p className="mt-6 text-sm text-modeled-ink">
         Every price change lands as a git commit in the public repository —
         the full audit history is the point. Spotted a wrong price?{" "}
         <a

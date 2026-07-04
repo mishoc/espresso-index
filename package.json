@@ -11,7 +11,8 @@
     "burden": "bun scripts/build-burden.ts",
     "validate": "bun scripts/validate-data.ts",
     "csv": "bun scripts/build-csv.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "map:slim": "toposimplify -P 0.08 -q 1e4 -o src/data-map/countries-slim.json public/countries-50m.json"
   },
   "dependencies": {
     "d3": "^7.9.0",
@@ -30,6 +31,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/topojson-client": "^3.1.5",
+    "@types/topojson-simplify": "^3.0.3",
     "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
@@ -37,6 +39,7 @@
     "tailwindcss": "^4",
     "typescript": "^5",
     "vitest": "^4.1.9",
-    "world-atlas": "^2.0.2"
+    "world-atlas": "^2.0.2",
+    "topojson-simplify": "^3.0.3"
   }
 }
