@@ -10,7 +10,8 @@
     "prebuild": "bun scripts/validate-data.ts && bun scripts/build-csv.ts",
     "burden": "bun scripts/build-burden.ts",
     "validate": "bun scripts/validate-data.ts",
-    "csv": "bun scripts/build-csv.ts"
+    "csv": "bun scripts/build-csv.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "d3": "^7.9.0",
@@ -22,15 +23,20 @@
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.2",
     "@types/d3": "^7.4.3",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
+    "jsdom": "^29.1.1",
     "tailwindcss": "^4",
     "typescript": "^5",
+    "vitest": "^4.1.9",
     "world-atlas": "^2.0.2"
   }
 }
