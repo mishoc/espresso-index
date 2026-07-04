@@ -15,6 +15,16 @@ export interface MapFeature {
   fill: string;
 }
 
+/* Issue #2: centroid markers for economies whose polygon is sub-pixel at
+   world zoom (microstates + Tuvalu, which has no polygon at all). */
+export interface MapMarker {
+  iso3: string;
+  name: string;
+  cx: number;
+  cy: number;
+  fill: string;
+}
+
 const BY_ISO3 = new Map(dataset.countries.map((c) => [c.iso3, c]));
 
 interface Tip {
@@ -27,12 +37,14 @@ interface Tip {
 
 export default function EspressoMap({
   features,
+  markers,
   legendStops,
   min,
   max,
   noDataFill,
 }: {
   features: MapFeature[];
+  markers: MapMarker[];
   legendStops: string[];
   min: number;
   max: number;
@@ -44,7 +56,7 @@ export default function EspressoMap({
   /* One delegated listener instead of 241 per-path handlers — keeps the
      server-rendered SVG cheap to hydrate. */
   const move = (e: React.MouseEvent) => {
-    const target = (e.target as Element).closest("path[data-name]");
+    const target = (e.target as Element).closest("[data-name]");
     const rect = wrapRef.current?.getBoundingClientRect();
     if (!target || !rect) {
       setTip(null);
@@ -83,6 +95,20 @@ export default function EspressoMap({
             className="cursor-pointer"
           />
         ))}
+        {markers.map((m) => (
+          <circle
+            key={`marker-${m.iso3}`}
+            cx={m.cx}
+            cy={m.cy}
+            r={3.5}
+            fill={m.fill}
+            stroke="#faf6f0"
+            strokeWidth={1}
+            data-iso3={m.iso3}
+            data-name={m.name}
+            className="cursor-pointer"
+          />
+        ))}
       </svg>
 
       {/* legend */}
@@ -95,6 +121,8 @@ export default function EspressoMap({
         <span className="tabular">${max.toFixed(2)}</span>
         <span className="ml-3 inline-block h-3 w-3 rounded-[3px]" style={{ background: noDataFill }} />
         <span>not in the index</span>
+        <span className="ml-3 inline-block h-2.5 w-2.5 rounded-full border border-porcelain" style={{ background: legendStops[5] }} />
+        <span>microstates as dots</span>
       </div>
 
       {/* MapTooltip: flag, price, rank, tier (SPEC §2) */}

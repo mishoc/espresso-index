@@ -77,7 +77,7 @@ D1–2 scaffold (Next.js, Tailwind tokens, dataset in place, deploy pipeline liv
 **Week 2:**
 D8 macro strip + FRED proxy w/ 6h cache · D9 Methodology/About/404 copy · D10 mobile pass at 375px · D11 `/qa` against checklist · D12 fixes (bonus feature only if clean by noon) · D13 `/review` + Lighthouse + OG images (the map screenshot is the marketing asset) · D14 `/land-and-deploy` + soft launch.
 
-**Definition of done:** all 196 economies on map + table with correct tiers; burden computed everywhere GDP exists (null-GDP rows render "—", never crash sort, and always sort to the bottom regardless of sort direction); site fully functional with all external APIs blocked; 375px clean; CSV + cite work; methodology answers every "where's this from?"; deployed on custom domain with OG cards.
+**Definition of done:** all 196 economies on map + table with correct tiers (economies whose polygon is sub-pixel at world zoom — the microstates and Tuvalu, which has no polygon in world-atlas — render as hoverable centroid markers); burden computed everywhere GDP exists (null-GDP rows render "—", never crash sort, and always sort to the bottom regardless of sort direction); site fully functional with all external APIs blocked; 375px clean; CSV + cite work; methodology answers every "where's this from?"; deployed on custom domain with OG cards.
 
 ---
 

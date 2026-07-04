@@ -6,7 +6,7 @@ import { iso31661 } from "iso-3166";
 import { readDataset, TOPO_PATH, assignRanks, type Country } from "./lib";
 
 // TUV has no polygon in world-atlas@2 countries-50m — the one allowed absence.
-// Rendering fallback tracked in issue #2.
+// It renders via the manual-centroid marker in MapServer.tsx (issue #2).
 const TOPO_ALLOWLIST = new Set(["TUV"]);
 
 const errors: string[] = [];
