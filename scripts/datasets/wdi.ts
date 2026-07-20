@@ -11,7 +11,14 @@ interface WbRow {
 
 /** Paged pull of a WDI indicator for all countries (aggregates dropped by
  *  the iso3 whitelist). Explicit UA — WB rejects some defaults since 2026-07-13. */
-async function wdiRows(indicatorId: string, code: string, fromYear: number): Promise<TidyRow[]> {
+async function wdiRows(
+  indicatorId: string,
+  code: string,
+  fromYear: number,
+  opts: { decimals?: number; dropNonPositive?: boolean } = {},
+): Promise<TidyRow[]> {
+  const { decimals = 2, dropNonPositive = false } = opts;
+  const factor = 10 ** decimals;
   const rows: TidyRow[] = [];
   for (let page = 1, pages = 1; page <= pages; page++) {
     const url = `https://api.worldbank.org/v2/country/all/indicator/${indicatorId}?format=json&date=${fromYear}:2026&per_page=20000&page=${page}`;
@@ -21,12 +28,9 @@ async function wdiRows(indicatorId: string, code: string, fromYear: number): Pro
     pages = meta.pages;
     for (const r of data ?? []) {
       if (r.value === null || !VALID.has(r.countryiso3code)) continue;
-      rows.push({
-        iso3: r.countryiso3code,
-        date: r.date,
-        indicator: code,
-        value: Math.round(r.value * 100) / 100,
-      });
+      const value = Math.round(r.value * factor) / factor;
+      if (dropNonPositive && value <= 0) continue;
+      rows.push({ iso3: r.countryiso3code, date: r.date, indicator: code, value });
     }
   }
   if (rows.length === 0) throw new Error(`${indicatorId}: zero rows — API change?`);
@@ -65,6 +69,55 @@ export async function fetchWdiGdppc(): Promise<FetcherResult> {
       // Min 5, not 20: Myanmar's official-FX era bottoms out at $11.80 (1966)
       // in WB's own published series. Bounds catch unit flips, not history.
       bounds: { gdp_per_capita_usd: { min: 5, max: 500000 } },
+    },
+  };
+}
+
+export async function fetchWdiPpp(): Promise<FetcherResult> {
+  // 6 decimals: strong currencies sit well below 1 LCU/intl$ (2dp would
+  // crush them); WB also publishes literal zeros for some gaps — dropped.
+  const rows = await wdiRows("PA.NUS.PPP", "ppp_conversion", 1990, {
+    decimals: 6,
+    dropNonPositive: true,
+  });
+  return {
+    rows,
+    manifest: {
+      ...WB_COMMON,
+      id: "wdi-ppp",
+      name: "PPP conversion factor",
+      description:
+        "Local currency units per international dollar — how far money actually stretches at home.",
+      sourceUrl: "https://data.worldbank.org/indicator/PA.NUS.PPP",
+      unit: "LCU per intl $",
+      coverage: coverage(rows),
+      indicators: [{ code: "ppp_conversion", label: "PPP conversion factor (LCU/intl $)" }],
+      // Spans redenomination artifacts (4e-6) to hyperinflated currencies —
+      // WB's own published series; bounds exist to catch unit flips.
+      bounds: { ppp_conversion: { min: 1e-9, max: 1e9 } },
+    },
+  };
+}
+
+/** Top-10% income share. SPEC §2.2 named WID bulk data, but WID has no API
+ *  and isn't on DBnomics (verified 2026-07-24) — the bulk-zip pipeline it
+ *  would need is exactly what §2.3 tells us to avoid. The World Bank
+ *  carries the same measure from household surveys (SI.DST.10TH.10). */
+export async function fetchTop10(): Promise<FetcherResult> {
+  const rows = await wdiRows("SI.DST.10TH.10", "top10_share_pct", 1960);
+  return {
+    rows,
+    manifest: {
+      ...WB_COMMON,
+      id: "top10-share",
+      name: "Top-10% income share",
+      description:
+        "Share of income held by the richest tenth (household surveys; sparse for some countries).",
+      sourceUrl: "https://data.worldbank.org/indicator/SI.DST.10TH.10",
+      unit: "% of income",
+      coverage: coverage(rows),
+      indicators: [{ code: "top10_share_pct", label: "Top-10% income share (%)" }],
+      bounds: { top10_share_pct: { min: 10, max: 75 } },
     },
   };
 }

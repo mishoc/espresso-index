@@ -152,6 +152,96 @@
     "bytes": 40340
   },
   {
+    "id": "faostat-production",
+    "name": "Coffee production",
+    "description": "Green coffee production by country, in tonnes (FAOSTAT crops & livestock).",
+    "sourceName": "FAOSTAT",
+    "sourceUrl": "https://www.fao.org/faostat/en/#data/QCL",
+    "attribution": "Source: FAOSTAT (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "unit": "tonnes",
+    "frequency": "annual",
+    "coverage": {
+      "from": "1961",
+      "to": "2024",
+      "countries": 84
+    },
+    "indicators": [
+      {
+        "code": "coffee_production_t",
+        "label": "Green coffee production (tonnes)"
+      }
+    ],
+    "bounds": {
+      "coffee_production_t": {
+        "min": 0,
+        "max": 6000000
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 398233
+  },
+  {
+    "id": "oecd-hours",
+    "name": "Hours worked",
+    "description": "Average annual hours actually worked per worker (OECD members and partners).",
+    "sourceName": "OECD",
+    "sourceUrl": "https://db.nomics.world/OECD/DSD_HW%40DF_AVG_ANN_HRS_WKD",
+    "attribution": "Source: OECD via DBnomics",
+    "license": "Open — attribution required",
+    "unit": "hours/year",
+    "frequency": "annual",
+    "coverage": {
+      "from": "1950",
+      "to": "2025",
+      "countries": 45
+    },
+    "indicators": [
+      {
+        "code": "hours_per_year",
+        "label": "Hours worked (per worker/year)"
+      }
+    ],
+    "bounds": {
+      "hours_per_year": {
+        "min": 900,
+        "max": 2900
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 146119
+  },
+  {
+    "sourceName": "World Bank",
+    "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "frequency": "annual",
+    "id": "top10-share",
+    "name": "Top-10% income share",
+    "description": "Share of income held by the richest tenth (household surveys; sparse for some countries).",
+    "sourceUrl": "https://data.worldbank.org/indicator/SI.DST.10TH.10",
+    "unit": "% of income",
+    "coverage": {
+      "from": "1963",
+      "to": "2025",
+      "countries": 171
+    },
+    "indicators": [
+      {
+        "code": "top10_share_pct",
+        "label": "Top-10% income share (%)"
+      }
+    ],
+    "bounds": {
+      "top10_share_pct": {
+        "min": 10,
+        "max": 75
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 174463
+  },
+  {
     "sourceName": "World Bank",
     "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
     "license": "CC-BY 4.0",
@@ -210,5 +300,35 @@
     },
     "updated": "2026-07-20",
     "bytes": 677963
+  },
+  {
+    "sourceName": "World Bank",
+    "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "frequency": "annual",
+    "id": "wdi-ppp",
+    "name": "PPP conversion factor",
+    "description": "Local currency units per international dollar — how far money actually stretches at home.",
+    "sourceUrl": "https://data.worldbank.org/indicator/PA.NUS.PPP",
+    "unit": "LCU per intl $",
+    "coverage": {
+      "from": "1990",
+      "to": "2025",
+      "countries": 204
+    },
+    "indicators": [
+      {
+        "code": "ppp_conversion",
+        "label": "PPP conversion factor (LCU/intl $)"
+      }
+    ],
+    "bounds": {
+      "ppp_conversion": {
+        "min": 1e-9,
+        "max": 1000000000
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 529037
   }
 ]

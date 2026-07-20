@@ -6,9 +6,11 @@ import { join } from "node:path";
 import type { Fetcher, FetcherResult, Manifest, ManifestEntry } from "../src/lib/datalab-types";
 import { fetchEspresso } from "./datasets/espresso";
 import { fetchBigMac } from "./datasets/big-mac";
-import { fetchWdiGdppc, fetchWdiInflation } from "./datasets/wdi";
+import { fetchWdiGdppc, fetchWdiInflation, fetchWdiPpp, fetchTop10 } from "./datasets/wdi";
 import { fetchCoffeePrices } from "./datasets/coffee-prices";
 import { fetchMinWage } from "./datasets/dbn-minwage";
+import { fetchOecdHours } from "./datasets/oecd-hours";
+import { fetchFaostatProduction } from "./datasets/faostat-production";
 
 const DIR = join(import.meta.dirname, "..", "public", "datasets");
 const MANIFEST_PATH = join(DIR, "manifest.json");
@@ -20,6 +22,11 @@ const FETCHERS: Record<string, Fetcher> = {
   "wdi-inflation": fetchWdiInflation,
   "coffee-prices": fetchCoffeePrices,
   "dbn-minwage": fetchMinWage,
+  // Phase B (§2.2)
+  "wdi-ppp": fetchWdiPpp,
+  "top10-share": fetchTop10,
+  "oecd-hours": fetchOecdHours,
+  "faostat-production": fetchFaostatProduction,
 };
 
 const only = process.argv.find((a) => a.startsWith("--only="))?.slice(7);

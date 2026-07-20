@@ -36,6 +36,7 @@
     "@types/react-dom": "^19",
     "@types/topojson-client": "^3.1.5",
     "@types/topojson-simplify": "^3.0.3",
+    "@types/unzipper": "^0.10.11",
     "@vitejs/plugin-react": "^6.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
@@ -43,6 +44,7 @@
     "tailwindcss": "^4",
     "topojson-simplify": "^3.0.3",
     "typescript": "^5",
+    "unzipper": "^0.12.5",
     "vitest": "^4.1.9",
     "world-atlas": "^2.0.2",
     "xlsx": "^0.18.5"
