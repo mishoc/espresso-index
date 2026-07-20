@@ -50,3 +50,13 @@ body {
   font-variant-numeric: tabular-nums;
   font-size: 15px;
 }
+
+/* Horizontal strips (preset gallery): scrollable, but no scrollbar drawn
+   over the content on always-show-scrollbar systems. */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
