@@ -227,6 +227,11 @@ export default function LabChart({
           : state.type === "scatter" && scatterPoints
             ? buildScatterPlot(state, scatterPoints, width)
             : buildLinePlot(state, linePoints ?? [], width);
+      // Plot labels its mark groups with aria-label on role-less <g>,
+      // which axe rejects (aria-prohibited-attr). role=group permits it.
+      plot
+        .querySelectorAll("g[aria-label]:not([role])")
+        .forEach((g) => g.setAttribute("role", "group"));
       el.replaceChildren(plot);
     };
     render();
