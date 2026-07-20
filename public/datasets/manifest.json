@@ -1,0 +1,214 @@
+[
+  {
+    "id": "big-mac",
+    "name": "Big Mac Index",
+    "description": "The Economist's burger-based PPP measure. Prices in USD plus raw over/under-valuation vs the dollar.",
+    "sourceName": "The Economist",
+    "sourceUrl": "https://github.com/TheEconomist/big-mac-data",
+    "attribution": "Source: The Economist Big Mac Index",
+    "license": "Open — attribution required",
+    "unit": "USD / ratio",
+    "frequency": "biannual",
+    "coverage": {
+      "from": "2000",
+      "to": "2026",
+      "countries": 55
+    },
+    "indicators": [
+      {
+        "code": "dollar_price",
+        "label": "Big Mac price (USD)"
+      },
+      {
+        "code": "usd_valuation",
+        "label": "Valuation vs USD (raw, 0 = parity)"
+      }
+    ],
+    "bounds": {
+      "dollar_price": {
+        "min": 0.3,
+        "max": 20
+      },
+      "usd_valuation": {
+        "min": -1,
+        "max": 2
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 304946
+  },
+  {
+    "id": "coffee-prices",
+    "name": "Arabica & Robusta prices",
+    "description": "Global monthly coffee prices (USD/kg) from the World Bank Pink Sheet, 1990 onward.",
+    "sourceName": "World Bank",
+    "sourceUrl": "https://www.worldbank.org/en/research/commodity-markets",
+    "attribution": "Source: World Bank Commodity Price Data (Pink Sheet)",
+    "license": "Open — attribution required",
+    "unit": "USD/kg",
+    "frequency": "monthly",
+    "coverage": {
+      "from": "1990",
+      "to": "2024",
+      "countries": 1
+    },
+    "indicators": [
+      {
+        "code": "arabica_usd_kg",
+        "label": "Arabica price (USD/kg)"
+      },
+      {
+        "code": "robusta_usd_kg",
+        "label": "Robusta price (USD/kg)"
+      }
+    ],
+    "bounds": {
+      "arabica_usd_kg": {
+        "min": 0.5,
+        "max": 30
+      },
+      "robusta_usd_kg": {
+        "min": 0.3,
+        "max": 20
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 62042
+  },
+  {
+    "id": "dbn-minwage",
+    "name": "Minimum wages",
+    "description": "Statutory nominal gross monthly minimum wage, converted to US dollars (ILO).",
+    "sourceName": "ILO",
+    "sourceUrl": "https://db.nomics.world/ILO/EAR_4MMN_CUR_NB",
+    "attribution": "Source: ILO via DBnomics",
+    "license": "Open — attribution required",
+    "unit": "USD/month",
+    "frequency": "annual",
+    "coverage": {
+      "from": "1980",
+      "to": "2023",
+      "countries": 156
+    },
+    "indicators": [
+      {
+        "code": "min_wage_usd_month",
+        "label": "Minimum wage (USD/month)"
+      }
+    ],
+    "bounds": {
+      "min_wage_usd_month": {
+        "min": 0,
+        "max": 10000
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 233943
+  },
+  {
+    "id": "espresso",
+    "name": "The Espresso Index",
+    "description": "Espresso prices and purchasing-power burden across 196 economies. Single snapshot; joins ignore the year slider.",
+    "sourceName": "The Espresso Index",
+    "sourceUrl": "https://www.espressoindex.org/methodology",
+    "attribution": "Source: The Espresso Index (espressoindex.org)",
+    "license": "Own data — CC-BY 4.0",
+    "unit": "USD / % of daily GDP per capita",
+    "frequency": "snapshot",
+    "coverage": {
+      "from": "2026",
+      "to": "2026",
+      "countries": 196
+    },
+    "indicators": [
+      {
+        "code": "priceUSD",
+        "label": "Espresso price (USD)"
+      },
+      {
+        "code": "burdenPct",
+        "label": "Espresso Burden (% of daily GDP/capita)"
+      },
+      {
+        "code": "tier",
+        "label": "Confidence tier (0 surveyed · 1 derived · 2 modeled)"
+      }
+    ],
+    "bounds": {
+      "priceUSD": {
+        "min": 0.25,
+        "max": 8
+      },
+      "burdenPct": {
+        "min": 0,
+        "max": 500
+      },
+      "tier": {
+        "min": 0,
+        "max": 2
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 40340
+  },
+  {
+    "sourceName": "World Bank",
+    "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "frequency": "annual",
+    "id": "wdi-gdppc",
+    "name": "GDP per capita",
+    "description": "GDP per capita in current US dollars, all countries, annual since 1960.",
+    "sourceUrl": "https://data.worldbank.org/indicator/NY.GDP.PCAP.CD",
+    "unit": "USD",
+    "coverage": {
+      "from": "1960",
+      "to": "2025",
+      "countries": 213
+    },
+    "indicators": [
+      {
+        "code": "gdp_per_capita_usd",
+        "label": "GDP per capita (current USD)"
+      }
+    ],
+    "bounds": {
+      "gdp_per_capita_usd": {
+        "min": 5,
+        "max": 500000
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 912931
+  },
+  {
+    "sourceName": "World Bank",
+    "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "frequency": "annual",
+    "id": "wdi-inflation",
+    "name": "Inflation (CPI %)",
+    "description": "Consumer price inflation, annual percent change, all countries.",
+    "sourceUrl": "https://data.worldbank.org/indicator/FP.CPI.TOTL.ZG",
+    "unit": "% per year",
+    "coverage": {
+      "from": "1960",
+      "to": "2025",
+      "countries": 193
+    },
+    "indicators": [
+      {
+        "code": "cpi_inflation_pct",
+        "label": "CPI inflation (% YoY)"
+      }
+    ],
+    "bounds": {
+      "cpi_inflation_pct": {
+        "min": -30,
+        "max": 100000
+      }
+    },
+    "updated": "2026-07-20",
+    "bytes": 677963
+  }
+]

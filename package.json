@@ -7,12 +7,14 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prebuild": "bun scripts/validate-data.ts && bun scripts/build-csv.ts",
+    "prebuild": "bun scripts/validate-data.ts && bun scripts/validate-datasets.ts && bun scripts/build-csv.ts",
     "burden": "bun scripts/build-burden.ts",
     "validate": "bun scripts/validate-data.ts",
     "csv": "bun scripts/build-csv.ts",
     "test": "vitest run",
-    "map:slim": "toposimplify -P 0.08 -q 1e4 -o src/data-map/countries-slim.json public/countries-50m.json"
+    "map:slim": "toposimplify -P 0.08 -q 1e4 -o src/data-map/countries-slim.json public/countries-50m.json",
+    "data:refresh": "bun scripts/fetch-datasets.ts",
+    "validate:datasets": "bun scripts/validate-datasets.ts"
   },
   "dependencies": {
     "d3": "^7.9.0",
@@ -37,9 +39,10 @@
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",
     "tailwindcss": "^4",
+    "topojson-simplify": "^3.0.3",
     "typescript": "^5",
     "vitest": "^4.1.9",
     "world-atlas": "^2.0.2",
-    "topojson-simplify": "^3.0.3"
+    "xlsx": "^0.18.5"
   }
 }

@@ -1,0 +1,38 @@
+name: data-refresh
+
+# SPEC-DATALAB §3.3: monthly dataset refresh that opens a PR — never pushes
+# to main. CI (test.yml) validates the PR: schema, bounds, shrink detector.
+on:
+  schedule:
+    - cron: "17 6 3 * *" # 06:17 UTC on the 3rd of each month
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - uses: oven-sh/setup-bun@v2
+      - run: npm ci
+      - run: npm run data:refresh
+      - run: npm run validate:datasets
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: data/refresh
+          title: "data: monthly dataset refresh"
+          commit-message: "data: monthly dataset refresh"
+          body: |
+            Automated monthly refresh of the Data Lab datasets
+            (`npm run data:refresh`). Review the diff for surprises —
+            the validator's shrink detector guards against upstream
+            format changes, but eyeball coverage changes here.
+          add-paths: public/datasets/
+          delete-branch: true
