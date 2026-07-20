@@ -26,6 +26,8 @@ export interface LabState {
   year?: string;
   from?: string;
   to?: string;
+  /** Bar mode: iso3 codes drawn in the highlight color (preset 3). */
+  highlight?: string[];
 }
 
 export const LINE_SERIES_CAP = 12;
@@ -89,9 +91,22 @@ export function parseState(params: URLSearchParams): LabState {
     if (v && YEAR_RE.test(v)) s[k] = v;
   }
 
-  // Mutually sensible combos only (§4.1): YoY is a time transform.
+  const highlight = params.get("highlight");
+  if (highlight) {
+    const list = highlight
+      .split(",")
+      .map((c) => c.toUpperCase())
+      .filter((c) => ISO3_RE.test(c));
+    if (list.length) s.highlight = [...new Set(list)];
+  }
+
+  // Mutually sensible combos only (§4.1): YoY is a time transform, and a
+  // log axis would silently drop every negative YoY value — force linear.
   if (s.type === "scatter" || s.type === "map") s.yoy = false;
-  if (s.yoy) s.index100 = false;
+  if (s.yoy) {
+    s.index100 = false;
+    s.scale = "linear";
+  }
 
   return s;
 }
@@ -114,5 +129,6 @@ export function serializeState(s: LabState): string {
   for (const k of ["year", "from", "to"] as const) {
     if (s[k]) p.set(k, s[k]!);
   }
+  if (s.highlight?.length) p.set("highlight", s.highlight.join(","));
   return p.toString();
 }

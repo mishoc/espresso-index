@@ -42,6 +42,14 @@ describe("lab URL state", () => {
     expect(state.yoy).toBe(false);
   });
 
+  it("round-trips the bar highlight param (preset 3)", () => {
+    const state = parse(
+      "type=bar&series=espresso.priceUSD&countries=BRA,USA,DNK&year=2026&highlight=BRA,x1,VNM",
+    );
+    expect(state.highlight).toEqual(["BRA", "VNM"]);
+    expect(parse(serializeState(state))).toEqual(state);
+  });
+
   it("parseRef rejects malformed refs", () => {
     expect(parseRef("wdi-gdppc.gdp_per_capita_usd")).toEqual({
       dataset: "wdi-gdppc",

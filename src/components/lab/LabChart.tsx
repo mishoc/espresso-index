@@ -73,10 +73,22 @@ export function tidyToBarPoints(rows: TidyRow[], state: LabState): BarPoint[] {
     const cur = best.get(r.iso3);
     if (!cur || r.date > cur.date) best.set(r.iso3, { value: r.value, date: r.date });
   }
-  let points = [...best.entries()].map(([iso3, v]) => ({ iso3, value: v.value }));
+  const hi = new Set(state.highlight ?? []);
+  let points = [...best.entries()].map(([iso3, v]) => ({
+    iso3,
+    value: v.value,
+    highlight: hi.has(iso3),
+  }));
   points.sort((a, b) => b.value - a.value);
   if (!wanted) points = points.slice(0, 15);
   return points;
+}
+
+function lineLabel(state: LabState): string {
+  const base = indicatorLabel(state.series.dataset, state.series.indicator);
+  if (state.yoy) return `${base} — YoY %`;
+  if (state.index100) return `${base} — index (first year = 100)`;
+  return base;
 }
 
 function heightFor(width: number) {
@@ -97,7 +109,7 @@ function buildLinePlot(state: LabState, points: LinePoint[], width: number) {
     y: {
       grid: true,
       type: state.scale === "log" ? "log" : "linear",
-      label: indicatorLabel(state.series.dataset, state.series.indicator),
+      label: lineLabel(state),
     },
     x: { label: null },
     marks: [

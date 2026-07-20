@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { TidyRow } from "@/lib/datalab-types";
@@ -14,6 +14,9 @@ import {
   manifestById,
 } from "@/lib/lab-data";
 import { joinScatter, pearsonR } from "@/lib/lab-join";
+import { toIndex100, toYoY } from "@/lib/lab-transform";
+import { downloadCsv, svgToPng } from "@/lib/lab-export";
+import presetsJson from "../../../data/presets.json";
 import {
   LINE_SERIES_CAP,
   parseState,
@@ -39,6 +42,9 @@ const CHART_TYPES: { id: ChartType; label: string }[] = [
   { id: "scatter", label: "Scatter" },
   { id: "map", label: "Map" },
 ];
+
+/** Presets are data, not code (§6-10). */
+const PRESETS = presetsJson as { id: string; title: string; blurb: string; params: string }[];
 
 function neededDatasets(state: LabState): string[] {
   return state.type === "scatter"
@@ -98,14 +104,19 @@ export default function LabShell() {
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(false);
 
-  /** URL is the source of truth — replaceState on every change (§4.3). */
+  /** URL is the source of truth — synced via effect after any user change
+   *  (§4.3). Never inside the setState updater: updaters run during render,
+   *  and history.replaceState there trips Next's router mid-render. */
+  const dirty = useRef(false);
   const update = useCallback((patch: Partial<LabState>) => {
-    setState((prev) => {
-      const next = { ...prev, ...patch };
-      window.history.replaceState(null, "", `/lab?${serializeState(next)}`);
-      return next;
-    });
+    dirty.current = true;
+    setState((prev) => ({ ...prev, ...patch }));
   }, []);
+
+  useEffect(() => {
+    if (dirty.current)
+      window.history.replaceState(null, "", `/lab?${serializeState(state)}`);
+  }, [state]);
 
   const needed = neededDatasets(state);
   const loadKey = needed.join("+");
@@ -142,13 +153,14 @@ export default function LabShell() {
     );
   }, [load, state]);
 
-  const linePoints = useMemo(
-    () =>
-      load.phase === "ready" && state.type === "line"
-        ? tidyToLinePoints(load.rows[state.series.dataset], state)
-        : [],
-    [load, state],
-  );
+  const linePoints = useMemo(() => {
+    if (load.phase !== "ready" || state.type !== "line") return [];
+    let rows = load.rows[state.series.dataset];
+    if (state.yoy) rows = toYoY(rows, state.series.indicator);
+    else if (state.index100)
+      rows = toIndex100(rows, state.series.indicator, state.from);
+    return tidyToLinePoints(rows, state);
+  }, [load, state]);
   const barPoints = useMemo(
     () =>
       load.phase === "ready" && state.type === "bar"
@@ -215,6 +227,52 @@ export default function LabShell() {
     } catch {
       window.prompt("Copy link:", url);
     }
+  };
+
+  const exportPng = () => {
+    const svg = document.querySelector<SVGSVGElement>("#lab-canvas svg");
+    if (svg)
+      svgToPng(svg, `espresso-lab-${state.type}.png`, attribution(needed)).catch(
+        () => {},
+      );
+  };
+
+  const exportCsv = () => {
+    if (state.type === "scatter") {
+      downloadCsv(
+        "espresso-lab-scatter.csv",
+        ["iso3", "country", "x", "x_date", "y", "y_date"],
+        scatterPoints.map((p) => [p.iso3, countryName(p.iso3), p.x, p.xDate, p.y, p.yDate]),
+      );
+    } else if (state.type === "map") {
+      downloadCsv(
+        "espresso-lab-map.csv",
+        ["iso3", "country", "value"],
+        [...mapValues.entries()].map(([iso3, v]) => [iso3, countryName(iso3), v]),
+      );
+    } else if (state.type === "bar") {
+      downloadCsv(
+        "espresso-lab-bar.csv",
+        ["iso3", "country", "value"],
+        barPoints.map((p) => [p.iso3, countryName(p.iso3), p.value]),
+      );
+    } else {
+      downloadCsv(
+        "espresso-lab-line.csv",
+        ["iso3", "country", "date", "value"],
+        linePoints.map((p) => [
+          p.iso3,
+          countryName(p.iso3),
+          p.date.toISOString().slice(0, 10),
+          p.value,
+        ]),
+      );
+    }
+  };
+
+  const applyPreset = (params: string) => {
+    dirty.current = true;
+    setState(parseState(new URLSearchParams(params)));
   };
 
   const attributionIds = needed;
@@ -344,16 +402,46 @@ export default function LabShell() {
           </div>
         </div>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={state.scale === "log"}
-            onChange={(e) =>
-              update({ scale: e.target.checked ? "log" : "linear" })
-            }
-          />
-          Log scale{state.type === "scatter" ? " (X axis)" : ""}
-        </label>
+        <div className="flex flex-col gap-1.5">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              checked={state.scale === "log"}
+              onChange={(e) =>
+                update({ scale: e.target.checked ? "log" : "linear" })
+              }
+            />
+            Log scale{state.type === "scatter" ? " (X axis)" : ""}
+          </label>
+          {isTimeChart && (
+            <>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={state.yoy}
+                  onChange={(e) =>
+                    update({
+                      yoy: e.target.checked,
+                      index100: false,
+                      ...(e.target.checked ? { scale: "linear" as const } : {}),
+                    })
+                  }
+                />
+                YoY %
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={state.index100}
+                  onChange={(e) =>
+                    update({ index100: e.target.checked, yoy: false })
+                  }
+                />
+                Index = 100 at first year
+              </label>
+            </>
+          )}
+        </div>
 
         {isTimeChart ? (
           <div>
@@ -402,16 +490,45 @@ export default function LabShell() {
           </div>
         )}
 
-        <button
-          onClick={share}
-          className="min-h-[44px] rounded-[6px] bg-crema px-4 text-sm font-medium text-espresso hover:brightness-105"
-        >
-          Share this chart
-        </button>
+        <div className="flex flex-col gap-2">
+          <button
+            onClick={share}
+            className="min-h-[44px] rounded-[6px] bg-crema px-4 text-sm font-medium text-espresso hover:brightness-105"
+          >
+            Share this chart
+          </button>
+          <div className="flex gap-2">
+            <button
+              onClick={exportPng}
+              className="min-h-[40px] flex-1 rounded-[6px] border border-roast px-3 text-sm text-roast hover:bg-paper"
+            >
+              PNG
+            </button>
+            <button
+              onClick={exportCsv}
+              className="min-h-[40px] flex-1 rounded-[6px] border border-roast px-3 text-sm text-roast hover:bg-paper"
+            >
+              CSV
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* canvas */}
       <section className="min-w-0 flex-1">
+        {/* preset gallery (§4.4) */}
+        <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+          {PRESETS.map((p) => (
+            <button
+              key={p.id}
+              onClick={() => applyPreset(p.params)}
+              title={p.blurb}
+              className="shrink-0 rounded-[6px] border border-card-border bg-paper px-3 py-1.5 text-left text-xs hover:border-crema"
+            >
+              <span className="font-medium">{p.title}</span>
+            </button>
+          ))}
+        </div>
         {state.type === "scatter" && load.phase === "ready" && pointCount >= 3 && (
           <p className="mb-1 text-right text-sm text-roast">
             {Number.isFinite(r) && (
@@ -447,20 +564,24 @@ export default function LabShell() {
               Not enough overlapping data for this combination — try a
               different year, or add countries.
             </div>
-          ) : state.type === "map" ? (
-            <LabMap state={state} values={mapValues} />
           ) : (
-            <LabChart
-              state={state}
-              linePoints={linePoints}
-              barPoints={barPoints}
-              scatterPoints={scatterPoints}
-              ariaLabel={
-                state.type === "scatter"
-                  ? `Scatter plot, ${pointCount} countries`
-                  : `${state.type} chart, ${pointCount} points`
-              }
-            />
+            <div id="lab-canvas">
+              {state.type === "map" ? (
+                <LabMap state={state} values={mapValues} />
+              ) : (
+                <LabChart
+                  state={state}
+                  linePoints={linePoints}
+                  barPoints={barPoints}
+                  scatterPoints={scatterPoints}
+                  ariaLabel={
+                    state.type === "scatter"
+                      ? `Scatter plot, ${pointCount} countries`
+                      : `${state.type} chart, ${pointCount} points`
+                  }
+                />
+              )}
+            </div>
           ))}
         <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-modeled-ink">
           <span>{attribution(attributionIds)}</span>

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "big-mac",
+    "title": "Espresso vs. Big Mac",
+    "blurb": "Two everyday purchasing-power probes, head to head. The signature chart.",
+    "params": "type=scatter&x=big-mac.dollar_price&y=espresso.priceUSD&countries=all&trend=1&year=2026"
+  },
+  {
+    "id": "gdp",
+    "title": "Espresso vs. GDP per capita",
+    "blurb": "Balassa–Samuelson, live: richer places, pricier shots (log X).",
+    "params": "type=scatter&x=wdi-gdppc.gdp_per_capita_usd&y=espresso.priceUSD&countries=all&scale=log&trend=1&year=2026"
+  },
+  {
+    "id": "growers",
+    "title": "Do coffee growers pay less?",
+    "blurb": "Producer countries (dark) against big consumer markets.",
+    "params": "type=bar&series=espresso.priceUSD&countries=BRA,VNM,COL,IDN,ETH,HND,UGA,GTM,PER,CIV,CRI,KEN,USA,DNK,CHE,ITA,GBR,DEU,JPN,FRA&year=2026&highlight=BRA,VNM,COL,IDN,ETH,HND,UGA,GTM,PER,CIV,CRI,KEN"
+  },
+  {
+    "id": "arabica",
+    "title": "Arabica's wild ride",
+    "blurb": "Global arabica prices since 1990 — frosts, gluts, and all (try log).",
+    "params": "type=line&series=coffee-prices.arabica_usd_kg&countries=all&from=1990&scale=log"
+  },
+  {
+    "id": "inflation",
+    "title": "The inflation century",
+    "blurb": "CPI change for eight major economies since 1960.",
+    "params": "type=line&series=wdi-inflation.cpi_inflation_pct&countries=USA,DEU,JPN,GBR,FRA,ITA,BRA,IND&from=1960"
+  },
+  {
+    "id": "minwage",
+    "title": "Minimum wage vs. espresso burden",
+    "blurb": "Where a shot costs the biggest slice of a minimum-wage day.",
+    "params": "type=scatter&x=dbn-minwage.min_wage_usd_month&y=espresso.burdenPct&countries=all&scale=log&trend=1&year=2026"
+  }
+]
