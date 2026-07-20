@@ -13,7 +13,11 @@ interface WbRow {
   date: string;
 }
 
-const res = await fetch(WB_URL);
+// WB's 2026-07-13 update started rejecting some client User-Agents (curl's
+// default gets a "Request Error" page). Identify explicitly.
+const res = await fetch(WB_URL, {
+  headers: { "User-Agent": "espresso-index-bot/1.0 (+https://www.espressoindex.org)" },
+});
 if (!res.ok) {
   console.error(`World Bank API returned ${res.status} — dataset left untouched.`);
   process.exit(1);
