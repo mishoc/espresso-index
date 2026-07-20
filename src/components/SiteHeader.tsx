@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Logo from "./Logo";
 
 const NAV = [
   { href: "/", label: "Index" },
@@ -12,7 +13,11 @@ export default function SiteHeader() {
   return (
     <header className="border-b border-card-border bg-porcelain">
       <div className="mx-auto flex w-full max-w-[1200px] flex-wrap items-center justify-between gap-x-4 gap-y-2 px-6 py-4">
-        <Link href="/" className="font-display text-lg font-semibold whitespace-nowrap">
+        <Link
+          href="/"
+          className="font-display flex items-center gap-2.5 text-lg font-semibold whitespace-nowrap"
+        >
+          <Logo />
           The Espresso Index
         </Link>
         <nav className="flex flex-wrap gap-x-5 gap-y-1 text-sm text-roast">
