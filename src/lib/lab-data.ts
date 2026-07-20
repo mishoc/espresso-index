@@ -48,3 +48,25 @@ export const COUNTRIES_BY_REGION = new Map(
   ]),
 );
 export const countryName = (iso3: string) => COUNTRY_NAMES.get(iso3) ?? iso3;
+export const REGION_BY_ISO3 = new Map(
+  espressoDataset.countries.map((c) => [c.iso3, c.region]),
+);
+const TIER_CODE = { surveyed: 0, derived: 1, modeled: 2 } as const;
+export const TIER_BY_ISO3 = new Map(
+  espressoDataset.countries.map((c) => [c.iso3, TIER_CODE[c.tier]]),
+);
+
+/** Lab Map mode geometry (shared with the homepage choropleth, serialized
+ *  at build by scripts/build-map-paths.ts). */
+import type { MapGeometry } from "./map-geometry";
+let geoPromise: Promise<MapGeometry> | null = null;
+export function loadMapGeometry(): Promise<MapGeometry> {
+  if (!geoPromise) {
+    geoPromise = fetch("/map-paths.json").then((r) => {
+      if (!r.ok) throw new Error(`map geometry: HTTP ${r.status}`);
+      return r.json() as Promise<MapGeometry>;
+    });
+    geoPromise.catch(() => (geoPromise = null));
+  }
+  return geoPromise;
+}

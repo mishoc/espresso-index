@@ -13,46 +13,86 @@ import {
   manifest,
   manifestById,
 } from "@/lib/lab-data";
+import { joinScatter, pearsonR } from "@/lib/lab-join";
 import {
-  DEFAULT_STATE,
   LINE_SERIES_CAP,
   parseState,
   serializeState,
   type ChartType,
   type LabState,
+  type SeriesRef,
 } from "@/lib/lab-state";
-import LabChart, { tidyToLinePoints } from "./LabChart";
+import LabChart, { tidyToBarPoints, tidyToLinePoints } from "./LabChart";
+import LabMap, { tidyToMapValues } from "./LabMap";
 
-/** Keyed by dataset id — "loading" is derived (loaded.id ≠ wanted id),
+/** Keyed by the dataset ids needed — "loading" is derived (key mismatch),
  *  so the effect never sets state synchronously (react-hooks rule). */
 interface Loaded {
-  id: string;
-  rows?: TidyRow[];
+  key: string;
+  rows?: Record<string, TidyRow[]>;
   error?: string;
 }
 
-const CHART_TYPES: { id: ChartType; label: string; ready: boolean }[] = [
-  { id: "line", label: "Line", ready: true },
-  { id: "bar", label: "Bar", ready: false },
-  { id: "scatter", label: "Scatter", ready: false },
-  { id: "map", label: "Map", ready: false },
+const CHART_TYPES: { id: ChartType; label: string }[] = [
+  { id: "line", label: "Line" },
+  { id: "bar", label: "Bar" },
+  { id: "scatter", label: "Scatter" },
+  { id: "map", label: "Map" },
 ];
+
+function neededDatasets(state: LabState): string[] {
+  return state.type === "scatter"
+    ? [...new Set([state.x.dataset, state.y.dataset])]
+    : [state.series.dataset];
+}
+
+function SeriesPicker({
+  label,
+  value,
+  onChange,
+  excludeTier = true,
+}: {
+  label: string;
+  value: SeriesRef;
+  onChange: (r: SeriesRef) => void;
+  excludeTier?: boolean;
+}) {
+  return (
+    <div>
+      <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
+        {label}
+      </p>
+      <select
+        value={`${value.dataset}.${value.indicator}`}
+        onChange={(e) => {
+          const dot = e.target.value.indexOf(".");
+          onChange({
+            dataset: e.target.value.slice(0, dot),
+            indicator: e.target.value.slice(dot + 1),
+          });
+        }}
+        aria-label={label}
+        className="min-h-[44px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+      >
+        {manifest.flatMap((d) =>
+          d.indicators
+            .filter((i) => !excludeTier || i.code !== "tier")
+            .map((i) => (
+              <option key={`${d.id}.${i.code}`} value={`${d.id}.${i.code}`}>
+                {d.name} — {i.label}
+              </option>
+            )),
+        )}
+      </select>
+    </div>
+  );
+}
 
 export default function LabShell() {
   const params = useSearchParams();
-  const [state, setState] = useState<LabState>(() => {
-    const parsed = parseState(new URLSearchParams(params.toString()));
-    // Until Bar/Scatter/Map land (D8–9), coerce to the working chart.
-    return parsed.type === "line"
-      ? parsed
-      : {
-          ...parsed,
-          type: "line",
-          series: { dataset: "wdi-inflation", indicator: "cpi_inflation_pct" },
-          countries: ["USA", "DEU", "JPN", "GBR", "ITA", "BRA", "IND", "TUR"],
-          from: "1990",
-        };
-  });
+  const [state, setState] = useState<LabState>(() =>
+    parseState(new URLSearchParams(params.toString())),
+  );
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [retryTick, setRetryTick] = useState(0);
   const [search, setSearch] = useState("");
@@ -67,28 +107,72 @@ export default function LabShell() {
     });
   }, []);
 
+  const needed = neededDatasets(state);
+  const loadKey = needed.join("+");
+
   useEffect(() => {
     let alive = true;
-    const id = state.series.dataset;
-    loadDataset(id)
-      .then((rows) => alive && setLoaded({ id, rows }))
-      .catch((e) => alive && setLoaded({ id, error: (e as Error).message }));
+    Promise.all(needed.map((id) => loadDataset(id).then((rows) => [id, rows] as const)))
+      .then((pairs) => alive && setLoaded({ key: loadKey, rows: Object.fromEntries(pairs) }))
+      .catch((e) => alive && setLoaded({ key: loadKey, error: (e as Error).message }));
     return () => {
       alive = false;
     };
-  }, [state.series.dataset, retryTick]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadKey, retryTick]);
 
   const entry = manifestById.get(state.series.dataset);
-  const current = loaded?.id === state.series.dataset ? loaded : null;
+  const current = loaded?.key === loadKey ? loaded : null;
   const load = !current
     ? ({ phase: "loading" } as const)
     : current.error
       ? ({ phase: "error", message: current.error } as const)
       : ({ phase: "ready", rows: current.rows! } as const);
-  const points = useMemo(
-    () => (load.phase === "ready" ? tidyToLinePoints(load.rows, state) : []),
+
+  const scatterPoints = useMemo(() => {
+    if (load.phase !== "ready" || state.type !== "scatter") return [];
+    const year = state.year ?? "2026";
+    return joinScatter(
+      load.rows[state.x.dataset],
+      state.x.indicator,
+      load.rows[state.y.dataset],
+      state.y.indicator,
+      year,
+      state.countries,
+    );
+  }, [load, state]);
+
+  const linePoints = useMemo(
+    () =>
+      load.phase === "ready" && state.type === "line"
+        ? tidyToLinePoints(load.rows[state.series.dataset], state)
+        : [],
     [load, state],
   );
+  const barPoints = useMemo(
+    () =>
+      load.phase === "ready" && state.type === "bar"
+        ? tidyToBarPoints(load.rows[state.series.dataset], state)
+        : [],
+    [load, state],
+  );
+  const mapValues = useMemo(
+    () =>
+      load.phase === "ready" && state.type === "map"
+        ? tidyToMapValues(load.rows[state.series.dataset], state)
+        : new Map<string, number>(),
+    [load, state],
+  );
+
+  const pointCount =
+    state.type === "scatter"
+      ? scatterPoints.length
+      : state.type === "map"
+        ? mapValues.size
+        : state.type === "bar"
+          ? barPoints.length
+          : linePoints.length;
+  const r = state.type === "scatter" ? pearsonR(scatterPoints) : NaN;
 
   const selected = useMemo(
     () => (state.countries === "all" ? [] : (state.countries as string[])),
@@ -106,15 +190,19 @@ export default function LabShell() {
       .slice(0, 8);
   }, [search, selected]);
 
+  const capReached =
+    state.type === "line" && selected.length >= LINE_SERIES_CAP;
   const addCountry = (iso3: string) => {
-    if (selected.length >= LINE_SERIES_CAP) return;
+    if (capReached) return;
     update({ countries: [...selected, iso3] });
     setSearch("");
   };
   const addRegion = (region: string) => {
     const add = COUNTRIES_BY_REGION.get(region) ?? [];
+    const merged = [...new Set([...selected, ...add])];
     update({
-      countries: [...new Set([...selected, ...add])].slice(0, LINE_SERIES_CAP),
+      countries:
+        state.type === "line" ? merged.slice(0, LINE_SERIES_CAP) : merged,
     });
   };
 
@@ -129,6 +217,9 @@ export default function LabShell() {
     }
   };
 
+  const attributionIds = needed;
+  const isTimeChart = state.type === "line";
+
   return (
     <div className="flex flex-col gap-6 md:flex-row">
       {/* control panel */}
@@ -141,14 +232,12 @@ export default function LabShell() {
             {CHART_TYPES.map((t) => (
               <button
                 key={t.id}
-                disabled={!t.ready}
-                title={t.ready ? undefined : "Coming this week"}
                 onClick={() => update({ type: t.id })}
                 className={`min-h-[36px] flex-1 rounded-[6px] border px-2 text-sm ${
                   state.type === t.id
                     ? "border-crema bg-crema/20 font-medium"
                     : "border-card-border bg-paper text-roast"
-                } ${t.ready ? "" : "cursor-not-allowed opacity-40"}`}
+                }`}
               >
                 {t.label}
               </button>
@@ -156,39 +245,43 @@ export default function LabShell() {
           </div>
         </div>
 
-        <div>
-          <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
-            Dataset · indicator
-          </p>
-          <select
-            value={`${state.series.dataset}.${state.series.indicator}`}
-            onChange={(e) => {
-              const dot = e.target.value.indexOf(".");
-              update({
-                series: {
-                  dataset: e.target.value.slice(0, dot),
-                  indicator: e.target.value.slice(dot + 1),
-                },
-              });
-            }}
-            aria-label="Dataset and indicator"
-            className="min-h-[44px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
-          >
-            {manifest.flatMap((d) =>
-              d.indicators
-                .filter((i) => i.code !== "tier")
-                .map((i) => (
-                  <option key={`${d.id}.${i.code}`} value={`${d.id}.${i.code}`}>
-                    {d.name} — {i.label}
-                  </option>
-                )),
-            )}
-          </select>
-        </div>
+        {state.type === "scatter" ? (
+          <>
+            <SeriesPicker
+              label="X axis"
+              value={state.x}
+              onChange={(x) => update({ x })}
+            />
+            <SeriesPicker
+              label="Y axis"
+              value={state.y}
+              onChange={(y) => update({ y })}
+            />
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={state.trend}
+                onChange={(e) => update({ trend: e.target.checked })}
+              />
+              Trend line (OLS)
+            </label>
+          </>
+        ) : (
+          <SeriesPicker
+            label="Dataset · indicator"
+            value={state.series}
+            onChange={(series) => update({ series })}
+          />
+        )}
 
         <div>
           <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
-            Countries ({selected.length}/{LINE_SERIES_CAP})
+            Countries{" "}
+            {selected.length === 0
+              ? "(all)"
+              : isTimeChart
+                ? `(${selected.length}/${LINE_SERIES_CAP})`
+                : `(${selected.length})`}
           </p>
           <input
             type="search"
@@ -217,75 +310,97 @@ export default function LabShell() {
               ))}
             </ul>
           )}
+          {selected.length > 0 && (
+            <div className="mt-2 flex flex-wrap gap-1">
+              {selected.map((iso3) => (
+                <button
+                  key={iso3}
+                  onClick={() =>
+                    update({
+                      countries:
+                        selected.length === 1
+                          ? "all"
+                          : selected.filter((c) => c !== iso3),
+                    })
+                  }
+                  title="Remove"
+                  className="rounded-[4px] border border-card-border bg-paper px-2 py-0.5 text-xs hover:border-error hover:text-error"
+                >
+                  {countryName(iso3)} ✕
+                </button>
+              ))}
+            </div>
+          )}
           <div className="mt-2 flex flex-wrap gap-1">
-            {selected.map((iso3) => (
+            {[...COUNTRIES_BY_REGION.keys()].slice(0, 4).map((reg) => (
               <button
-                key={iso3}
-                onClick={() =>
-                  update({ countries: selected.filter((c) => c !== iso3) })
-                }
-                title="Remove"
-                className="rounded-[4px] border border-card-border bg-paper px-2 py-0.5 text-xs hover:border-error hover:text-error"
-              >
-                {countryName(iso3)} ✕
-              </button>
-            ))}
-          </div>
-          <div className="mt-2 flex flex-wrap gap-1">
-            {[...COUNTRIES_BY_REGION.keys()].slice(0, 4).map((r) => (
-              <button
-                key={r}
-                onClick={() => addRegion(r)}
+                key={reg}
+                onClick={() => addRegion(reg)}
                 className="rounded-[4px] border border-roast/40 px-2 py-0.5 text-xs text-roast hover:bg-paper"
               >
-                + {r}
+                + {reg}
               </button>
             ))}
           </div>
         </div>
 
-        <div>
-          <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
-            Transforms
-          </p>
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              checked={state.scale === "log"}
-              onChange={(e) =>
-                update({ scale: e.target.checked ? "log" : "linear" })
-              }
-            />
-            Log scale
-          </label>
-        </div>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            checked={state.scale === "log"}
+            onChange={(e) =>
+              update({ scale: e.target.checked ? "log" : "linear" })
+            }
+          />
+          Log scale{state.type === "scatter" ? " (X axis)" : ""}
+        </label>
 
-        <div>
-          <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
-            From · to
-          </p>
-          <div className="flex items-center gap-2">
-            <input
-              type="number"
-              value={state.from ?? entry?.coverage.from ?? "1960"}
-              min={1960}
-              max={2026}
-              onChange={(e) => update({ from: e.target.value })}
-              aria-label="From year"
-              className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
-            />
-            <span className="text-modeled-ink">–</span>
-            <input
-              type="number"
-              value={state.to ?? entry?.coverage.to ?? "2026"}
-              min={1960}
-              max={2026}
-              onChange={(e) => update({ to: e.target.value })}
-              aria-label="To year"
-              className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
-            />
+        {isTimeChart ? (
+          <div>
+            <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
+              From · to
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={state.from ?? entry?.coverage.from ?? "1960"}
+                min={1960}
+                max={2026}
+                onChange={(e) => update({ from: e.target.value })}
+                aria-label="From year"
+                className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+              />
+              <span className="text-modeled-ink">–</span>
+              <input
+                type="number"
+                value={state.to ?? entry?.coverage.to ?? "2026"}
+                min={1960}
+                max={2026}
+                onChange={(e) => update({ to: e.target.value })}
+                aria-label="To year"
+                className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div>
+            <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
+              Year
+            </p>
+            <input
+              type="number"
+              value={state.year ?? "2026"}
+              min={1960}
+              max={2026}
+              onChange={(e) => update({ year: e.target.value })}
+              aria-label="Join year"
+              className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+            />
+            <p className="mt-1 text-xs text-modeled-ink">
+              Uses each country&apos;s most recent value up to this year.
+            </p>
+          </div>
+        )}
 
         <button
           onClick={share}
@@ -297,6 +412,14 @@ export default function LabShell() {
 
       {/* canvas */}
       <section className="min-w-0 flex-1">
+        {state.type === "scatter" && load.phase === "ready" && pointCount >= 3 && (
+          <p className="mb-1 text-right text-sm text-roast">
+            {Number.isFinite(r) && (
+              <span className="tabular font-medium">r = {r.toFixed(2)}</span>
+            )}{" "}
+            <span className="tabular text-modeled-ink">n = {pointCount}</span>
+          </p>
+        )}
         {load.phase === "loading" && (
           <div className="flex min-h-[320px] animate-pulse items-center justify-center rounded-card border border-card-border bg-paper text-sm text-modeled-ink">
             Brewing the data…
@@ -304,7 +427,9 @@ export default function LabShell() {
         )}
         {load.phase === "error" && (
           <div className="flex min-h-[320px] flex-col items-center justify-center gap-3 rounded-card border border-card-border bg-paper text-sm">
-            <p className="text-roast">Couldn&apos;t load this dataset ({load.message}).</p>
+            <p className="text-roast">
+              Couldn&apos;t load this data ({load.message}).
+            </p>
             <button
               onClick={() => {
                 setLoaded(null);
@@ -317,17 +442,32 @@ export default function LabShell() {
           </div>
         )}
         {load.phase === "ready" &&
-          (points.length < 3 ? (
+          (pointCount < 3 ? (
             <div className="flex min-h-[320px] items-center justify-center rounded-card border border-card-border bg-paper px-6 text-center text-sm text-roast">
-              Not enough overlapping data for this combination — add countries
-              or widen the year range.
+              Not enough overlapping data for this combination — try a
+              different year, or add countries.
             </div>
+          ) : state.type === "map" ? (
+            <LabMap state={state} values={mapValues} />
           ) : (
-            <LabChart state={state} points={points} />
+            <LabChart
+              state={state}
+              linePoints={linePoints}
+              barPoints={barPoints}
+              scatterPoints={scatterPoints}
+              ariaLabel={
+                state.type === "scatter"
+                  ? `Scatter plot, ${pointCount} countries`
+                  : `${state.type} chart, ${pointCount} points`
+              }
+            />
           ))}
         <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-modeled-ink">
-          <span>{attribution([state.series.dataset])}</span>
-          <Link href="/lab/data" className="underline underline-offset-4 hover:text-espresso">
+          <span>{attribution(attributionIds)}</span>
+          <Link
+            href="/lab/data"
+            className="underline underline-offset-4 hover:text-espresso"
+          >
             About these datasets →
           </Link>
         </p>

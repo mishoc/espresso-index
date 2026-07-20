@@ -7,14 +7,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "prebuild": "bun scripts/validate-data.ts && bun scripts/validate-datasets.ts && bun scripts/build-csv.ts",
+    "prebuild": "bun scripts/validate-data.ts && bun scripts/validate-datasets.ts && bun scripts/build-csv.ts && bun scripts/build-map-paths.ts",
     "burden": "bun scripts/build-burden.ts",
     "validate": "bun scripts/validate-data.ts",
     "csv": "bun scripts/build-csv.ts",
     "test": "vitest run",
     "map:slim": "toposimplify -P 0.08 -q 1e4 -o src/data-map/countries-slim.json public/countries-50m.json",
     "data:refresh": "bun scripts/fetch-datasets.ts",
-    "validate:datasets": "bun scripts/validate-datasets.ts"
+    "validate:datasets": "bun scripts/validate-datasets.ts",
+    "map:paths": "bun scripts/build-map-paths.ts"
   },
   "dependencies": {
     "@observablehq/plot": "^0.6.17",
