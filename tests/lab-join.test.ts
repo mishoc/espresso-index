@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { joinScatter, olsFit, pearsonR } from "../src/lib/lab-join";
+import { joinScatter, olsFit, pearsonR, timeScatter } from "../src/lib/lab-join";
 import type { TidyRow } from "../src/lib/datalab-types";
 
 const row = (iso3: string, date: string, indicator: string, value: number): TidyRow => ({
@@ -33,6 +33,36 @@ describe("joinScatter — nearest-date rule (§3.4)", () => {
     const x = [row("ITA", "2025", "g", 1), row("FRA", "2025", "g", 2)];
     const y = [row("ITA", "2025", "p", 3), row("FRA", "2025", "p", 4)];
     expect(joinScatter(x, "g", y, "p", "2026", ["FRA"]).map((p) => p.iso3)).toEqual(["FRA"]);
+  });
+});
+
+describe("timeScatter — time on X", () => {
+  const rows = [
+    row("ITA", "2000", "v", 1),
+    row("ITA", "2010", "v", 2),
+    row("ITA", "2020", "v", 3),
+    row("FRA", "2010", "v", 9),
+    row("WLD", "2010", "v", 99),
+  ];
+
+  it("emits every in-range observation at (year, value)", () => {
+    const pts = timeScatter(rows, "v", "2000", "2026", "all");
+    expect(pts.map((p) => [p.iso3, p.x, p.y])).toEqual([
+      ["ITA", 2000, 1],
+      ["ITA", 2010, 2],
+      ["ITA", 2020, 3],
+      ["FRA", 2010, 9],
+    ]);
+  });
+
+  it("caps at the animated reveal year", () => {
+    const pts = timeScatter(rows, "v", "2000", "2026", "all", "2010");
+    expect(pts.map((p) => p.x)).toEqual([2000, 2010, 2010]);
+  });
+
+  it("respects range bounds and country selection", () => {
+    expect(timeScatter(rows, "v", "2005", "2015", "all")).toHaveLength(2);
+    expect(timeScatter(rows, "v", "2000", "2026", ["FRA"])).toHaveLength(1);
   });
 });
 

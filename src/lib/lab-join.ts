@@ -50,6 +50,31 @@ export function joinScatter(
   return out;
 }
 
+/** Time-on-X scatter: every observation of the Y indicator inside
+ *  [fromYear, toYear] becomes a point at (year, value). `upToYear` caps the
+ *  window for the animated progressive reveal. */
+export function timeScatter(
+  yRows: TidyRow[],
+  yIndicator: string,
+  fromYear: string,
+  toYear: string,
+  countries: string[] | "all",
+  upToYear?: string,
+): JoinedPoint[] {
+  const wanted = countries === "all" ? null : new Set(countries);
+  const cap = upToYear && upToYear < toYear ? upToYear : toYear;
+  const out: JoinedPoint[] = [];
+  for (const r of yRows) {
+    if (r.indicator !== yIndicator) continue;
+    if (r.iso3 === "WLD") continue;
+    if (wanted && !wanted.has(r.iso3)) continue;
+    const year = r.date.slice(0, 4);
+    if (year < fromYear || year > cap) continue;
+    out.push({ iso3: r.iso3, x: Number(year), y: r.value, xDate: year, yDate: r.date });
+  }
+  return out;
+}
+
 /** Pearson correlation coefficient. Returns NaN for n < 3 or zero variance. */
 export function pearsonR(points: { x: number; y: number }[]): number {
   const n = points.length;

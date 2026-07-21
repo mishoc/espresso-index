@@ -5,7 +5,7 @@ import * as Plot from "@observablehq/plot";
 import type { TidyRow } from "@/lib/datalab-types";
 import { countryName, indicatorLabel, REGION_BY_ISO3, TIER_BY_ISO3 } from "@/lib/lab-data";
 import { olsFit, type JoinedPoint } from "@/lib/lab-join";
-import type { LabState } from "@/lib/lab-state";
+import { isTimeRef, type LabState } from "@/lib/lab-state";
 
 /** Categorical ramp: crema first (§4.2), then colorblind-safe. */
 export const SERIES_COLORS = [
@@ -153,7 +153,13 @@ function buildBarPlot(state: LabState, points: BarPoint[], width: number) {
   });
 }
 
-function buildScatterPlot(state: LabState, points: JoinedPoint[], width: number) {
+function buildScatterPlot(
+  state: LabState,
+  points: JoinedPoint[],
+  width: number,
+  ghostYear?: string,
+) {
+  const timeX = isTimeRef(state.x);
   const espressoAxis =
     state.x.dataset === "espresso" || state.y.dataset === "espresso";
   const fit = state.trend ? olsFit(points) : null;
@@ -169,11 +175,29 @@ function buildScatterPlot(state: LabState, points: JoinedPoint[], width: number)
     symbol: espressoAxis ? { legend: true } : undefined,
     x: {
       grid: true,
-      type: state.scale === "log" ? "log" : "linear",
-      label: indicatorLabel(state.x.dataset, state.x.indicator),
+      type: timeX ? "linear" : state.scale === "log" ? "log" : "linear",
+      tickFormat: timeX ? "d" : undefined,
+      label: timeX ? "Year" : indicatorLabel(state.x.dataset, state.x.indicator),
     },
-    y: { grid: true, label: indicatorLabel(state.y.dataset, state.y.indicator) },
+    y: {
+      grid: true,
+      type: !timeX || state.scale !== "log" ? "linear" : "log",
+      label: indicatorLabel(state.y.dataset, state.y.indicator),
+    },
     marks: [
+      ...(ghostYear
+        ? [
+            Plot.text([ghostYear], {
+              frameAnchor: "top-right",
+              dx: -12,
+              dy: 16,
+              text: (d: string) => d,
+              fontSize: 44,
+              fontWeight: 700,
+              fill: "#ede6db",
+            }),
+          ]
+        : []),
       ...(fit
         ? [
             Plot.line(
@@ -195,7 +219,9 @@ function buildScatterPlot(state: LabState, points: JoinedPoint[], width: number)
         r: 4,
         tip: true,
         title: (d: JoinedPoint) =>
-          `${countryName(d.iso3)}\nx: ${d.x.toLocaleString()} (${d.xDate})\ny: ${d.y.toLocaleString()} (${d.yDate})`,
+          timeX
+            ? `${countryName(d.iso3)}\n${d.xDate}: ${d.y.toLocaleString()}`
+            : `${countryName(d.iso3)}\nx: ${d.x.toLocaleString()} (${d.xDate})\ny: ${d.y.toLocaleString()} (${d.yDate})`,
       }),
     ],
   });
@@ -206,12 +232,14 @@ export default function LabChart({
   linePoints,
   barPoints,
   scatterPoints,
+  ghostYear,
   ariaLabel,
 }: {
   state: LabState;
   linePoints?: LinePoint[];
   barPoints?: BarPoint[];
   scatterPoints?: JoinedPoint[];
+  ghostYear?: string;
   ariaLabel: string;
 }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -225,7 +253,7 @@ export default function LabChart({
         state.type === "bar" && barPoints
           ? buildBarPlot(state, barPoints, width)
           : state.type === "scatter" && scatterPoints
-            ? buildScatterPlot(state, scatterPoints, width)
+            ? buildScatterPlot(state, scatterPoints, width, ghostYear)
             : buildLinePlot(state, linePoints ?? [], width);
       // Plot labels its mark groups with aria-label on role-less <g>,
       // which axe rejects (aria-prohibited-attr). role=group permits it.
@@ -238,7 +266,7 @@ export default function LabChart({
     const ro = new ResizeObserver(render);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [state, linePoints, barPoints, scatterPoints]);
+  }, [state, linePoints, barPoints, scatterPoints, ghostYear]);
 
   return (
     <div

@@ -50,6 +50,17 @@ describe("lab URL state", () => {
     expect(parse(serializeState(state))).toEqual(state);
   });
 
+  it("round-trips the time X-axis and treats it as the default", () => {
+    expect(DEFAULT_STATE.x.dataset).toBe("time");
+    const state = parse(
+      "type=scatter&x=time&y=wdi-gdppc.gdp_per_capita_usd&countries=all&from=1990&to=2026&year=2005",
+    );
+    expect(state.x).toEqual({ dataset: "time", indicator: "year" });
+    expect(state.year).toBe("2005");
+    expect(parse(serializeState(state))).toEqual(state);
+    expect(serializeState(state)).toContain("x=time");
+  });
+
   it("parseRef rejects malformed refs", () => {
     expect(parseRef("wdi-gdppc.gdp_per_capita_usd")).toEqual({
       dataset: "wdi-gdppc",

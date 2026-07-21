@@ -32,28 +32,37 @@ export interface LabState {
 
 export const LINE_SERIES_CAP = 12;
 
+/** Sentinel X ref: the horizontal axis is calendar time, not a dataset.
+ *  Serializes as `x=time`. */
+export const TIME_REF: SeriesRef = { dataset: "time", indicator: "year" };
+export const isTimeRef = (r: SeriesRef) => r.dataset === "time";
+
 export const DEFAULT_STATE: LabState = {
-  // Preset #1 — Espresso vs. Big Mac, the signature chart.
+  // Default scatter: GDP per capita through time, ready to press play.
   type: "scatter",
   series: { dataset: "espresso", indicator: "priceUSD" },
-  x: { dataset: "big-mac", indicator: "dollar_price" },
-  y: { dataset: "espresso", indicator: "priceUSD" },
+  x: TIME_REF,
+  y: { dataset: "wdi-gdppc", indicator: "gdp_per_capita_usd" },
   countries: "all",
   scale: "linear",
   yoy: false,
   index100: false,
-  trend: true,
+  trend: false,
+  from: "1990",
+  to: "2026",
 };
 
 const REF_RE = /^[a-z0-9-]+\.[A-Za-z0-9_]+$/;
 
 export function parseRef(s: string | null): SeriesRef | undefined {
+  if (s === "time") return { ...TIME_REF };
   if (!s || !REF_RE.test(s)) return undefined;
   const dot = s.indexOf(".");
   return { dataset: s.slice(0, dot), indicator: s.slice(dot + 1) };
 }
 
-export const refToString = (r: SeriesRef) => `${r.dataset}.${r.indicator}`;
+export const refToString = (r: SeriesRef) =>
+  isTimeRef(r) ? "time" : `${r.dataset}.${r.indicator}`;
 
 const ISO3_RE = /^[A-Z]{3}$/;
 const YEAR_RE = /^\d{4}$/;

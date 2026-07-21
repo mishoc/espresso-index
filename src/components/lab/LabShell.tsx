@@ -13,13 +13,16 @@ import {
   manifest,
   manifestById,
 } from "@/lib/lab-data";
-import { joinScatter, pearsonR } from "@/lib/lab-join";
+import { joinScatter, pearsonR, timeScatter } from "@/lib/lab-join";
 import { toIndex100, toYoY } from "@/lib/lab-transform";
 import { downloadCsv, svgToPng } from "@/lib/lab-export";
 import presetsJson from "../../../data/presets.json";
 import {
+  isTimeRef,
   LINE_SERIES_CAP,
+  parseRef,
   parseState,
+  refToString,
   serializeState,
   type ChartType,
   type LabState,
@@ -47,9 +50,11 @@ const CHART_TYPES: { id: ChartType; label: string }[] = [
 const PRESETS = presetsJson as { id: string; title: string; blurb: string; params: string }[];
 
 function neededDatasets(state: LabState): string[] {
-  return state.type === "scatter"
-    ? [...new Set([state.x.dataset, state.y.dataset])]
-    : [state.series.dataset];
+  if (state.type !== "scatter") return [state.series.dataset];
+  const ids = [state.x, state.y]
+    .filter((r) => !isTimeRef(r))
+    .map((r) => r.dataset);
+  return [...new Set(ids)];
 }
 
 function SeriesPicker({
@@ -57,11 +62,13 @@ function SeriesPicker({
   value,
   onChange,
   excludeTier = true,
+  allowTime = false,
 }: {
   label: string;
   value: SeriesRef;
   onChange: (r: SeriesRef) => void;
   excludeTier?: boolean;
+  allowTime?: boolean;
 }) {
   return (
     <div>
@@ -69,17 +76,15 @@ function SeriesPicker({
         {label}
       </p>
       <select
-        value={`${value.dataset}.${value.indicator}`}
+        value={refToString(value)}
         onChange={(e) => {
-          const dot = e.target.value.indexOf(".");
-          onChange({
-            dataset: e.target.value.slice(0, dot),
-            indicator: e.target.value.slice(dot + 1),
-          });
+          const ref = parseRef(e.target.value);
+          if (ref) onChange(ref);
         }}
         aria-label={label}
         className="min-h-[44px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
       >
+        {allowTime && <option value="time">Time (years)</option>}
         {manifest.flatMap((d) =>
           d.indicators
             .filter((i) => !excludeTier || i.code !== "tier")
@@ -103,6 +108,7 @@ export default function LabShell() {
   const [retryTick, setRetryTick] = useState(0);
   const [search, setSearch] = useState("");
   const [toast, setToast] = useState(false);
+  const [playing, setPlaying] = useState(false);
 
   /** URL is the source of truth — synced via effect after any user change
    *  (§4.3). Never inside the setState updater: updaters run during render,
@@ -117,6 +123,46 @@ export default function LabShell() {
     if (dirty.current)
       window.history.replaceState(null, "", `/lab?${serializeState(state)}`);
   }, [state]);
+
+  /** Time sweep: while playing, advance state.year once per tick from
+   *  `from` to `to`, then stop. Pausing mid-flight leaves the exact frame
+   *  in the URL, so a paused chart shares as-is. */
+  const stateRef = useRef(state);
+  useEffect(() => {
+    stateRef.current = state;
+  }, [state]);
+  useEffect(() => {
+    if (!playing) return;
+    const id = setInterval(() => {
+      const s = stateRef.current;
+      const from = Number(s.from ?? "1990");
+      const to = Number(s.to ?? "2026");
+      const cur = Number(s.year ?? String(from));
+      if (cur >= to) {
+        setPlaying(false);
+        return;
+      }
+      dirty.current = true;
+      setState({ ...s, year: String(cur + 1) });
+    }, 450);
+    return () => clearInterval(id);
+  }, [playing]);
+
+  const togglePlay = () => {
+    if (playing) {
+      setPlaying(false);
+      return;
+    }
+    const s = stateRef.current;
+    const from = s.from ?? "1990";
+    const to = s.to ?? "2026";
+    // Restart from the beginning if the sweep already finished.
+    if (!s.year || s.year >= to) {
+      dirty.current = true;
+      setState({ ...s, year: from });
+    }
+    setPlaying(true);
+  };
 
   const needed = neededDatasets(state);
   const loadKey = needed.join("+");
@@ -142,6 +188,16 @@ export default function LabShell() {
 
   const scatterPoints = useMemo(() => {
     if (load.phase !== "ready" || state.type !== "scatter") return [];
+    if (isTimeRef(state.x)) {
+      return timeScatter(
+        load.rows[state.y.dataset],
+        state.y.indicator,
+        state.from ?? "1990",
+        state.to ?? "2026",
+        state.countries,
+        state.year, // animated reveal cap
+      );
+    }
     const year = state.year ?? "2026";
     return joinScatter(
       load.rows[state.x.dataset],
@@ -309,6 +365,7 @@ export default function LabShell() {
               label="X axis"
               value={state.x}
               onChange={(x) => update({ x })}
+              allowTime
             />
             <SeriesPicker
               label="Y axis"
@@ -411,7 +468,12 @@ export default function LabShell() {
                 update({ scale: e.target.checked ? "log" : "linear" })
               }
             />
-            Log scale{state.type === "scatter" ? " (X axis)" : ""}
+            Log scale
+          {state.type === "scatter"
+            ? isTimeRef(state.x)
+              ? " (Y axis)"
+              : " (X axis)"
+            : ""}
           </label>
           {isTimeChart && (
             <>
@@ -469,6 +531,59 @@ export default function LabShell() {
                 className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
               />
             </div>
+          </div>
+        ) : state.type === "scatter" ? (
+          <div>
+            <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
+              Time · {state.from ?? "1990"}–{state.to ?? "2026"}
+            </p>
+            <div className="flex items-center gap-2">
+              <input
+                type="number"
+                value={state.from ?? "1990"}
+                min={1960}
+                max={2026}
+                onChange={(e) => update({ from: e.target.value })}
+                aria-label="From year"
+                className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+              />
+              <span className="text-modeled-ink">–</span>
+              <input
+                type="number"
+                value={state.to ?? "2026"}
+                min={1960}
+                max={2026}
+                onChange={(e) => update({ to: e.target.value })}
+                aria-label="To year"
+                className="tabular min-h-[40px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-sm"
+              />
+            </div>
+            <div className="mt-2 flex items-center gap-2">
+              <button
+                onClick={togglePlay}
+                aria-label={playing ? "Pause the time sweep" : "Play through the years"}
+                className="min-h-[40px] w-[52px] shrink-0 rounded-[6px] bg-crema text-base font-medium text-espresso hover:brightness-105"
+              >
+                {playing ? "⏸" : "▶"}
+              </button>
+              <input
+                type="range"
+                min={Number(state.from ?? "1990")}
+                max={Number(state.to ?? "2026")}
+                value={Number(state.year ?? state.to ?? "2026")}
+                onChange={(e) => update({ year: e.target.value })}
+                aria-label="Current year"
+                className="w-full accent-[#C89A5B]"
+              />
+              <span className="tabular w-12 shrink-0 text-right text-sm text-roast">
+                {state.year ?? state.to ?? "2026"}
+              </span>
+            </div>
+            <p className="mt-1 text-xs text-modeled-ink">
+              {isTimeRef(state.x)
+                ? "Play reveals observations through the years."
+                : "Play sweeps the join year — dots move as history replays."}
+            </p>
           </div>
         ) : (
           <div>
@@ -574,6 +689,11 @@ export default function LabShell() {
                   linePoints={linePoints}
                   barPoints={barPoints}
                   scatterPoints={scatterPoints}
+                  ghostYear={
+                    state.type === "scatter"
+                      ? (state.year ?? state.to)
+                      : undefined
+                  }
                   ariaLabel={
                     state.type === "scatter"
                       ? `Scatter plot, ${pointCount} countries`
