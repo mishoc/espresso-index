@@ -1,0 +1,50 @@
+{
+  "lists": [
+    {
+      "id": "citizen-starter",
+      "audience": "Citizens",
+      "title": "Citizen starter pack",
+      "description": "Six stops that take you from 'what is this?' to understanding the biggest open debate, in plain language.",
+      "items": [
+        { "href": "/inequality/learn/what-is-inequality", "label": "What is income inequality?", "note": "Start here." },
+        { "href": "/inequality/learn/how-its-measured", "label": "How is inequality measured?", "note": "So the numbers make sense." },
+        { "href": "/inequality/data/us-top-income-shares", "label": "US top income shares chart", "note": "See the century in one picture." },
+        { "href": "/inequality/library/papers/chetty-et-al-2017", "label": "The Fading American Dream (Chetty et al. 2017)", "note": "The finding most people feel directly." },
+        { "href": "/inequality/library/books/piketty-2014", "label": "Capital in the Twenty-First Century (Piketty 2014)", "note": "The big book — and why it's contested." },
+        { "href": "/inequality/perspectives/technology-vs-politics", "label": "Technology or politics?", "note": "The field's central argument, both sides." }
+      ]
+    },
+    {
+      "id": "researcher-syllabus",
+      "audience": "Researchers",
+      "title": "Researcher / syllabus list",
+      "description": "A reading order for a graduate seminar: foundations, measurement, the labor-economics and political-science accounts, then frontier work.",
+      "items": [
+        { "href": "/inequality/library/papers/kuznets-1955", "label": "Kuznets (1955)", "note": "Foundational theory." },
+        { "href": "/inequality/library/papers/meltzer-richard-1981", "label": "Meltzer & Richard (1981)", "note": "Median-voter prediction." },
+        { "href": "/inequality/library/papers/piketty-saez-2003", "label": "Piketty & Saez (2003)", "note": "Tax-data measurement." },
+        { "href": "/inequality/library/papers/atkinson-piketty-saez-2011", "label": "Atkinson, Piketty & Saez (2011)", "note": "Cross-country survey." },
+        { "href": "/inequality/library/papers/katz-murphy-1992", "label": "Katz & Murphy (1992)", "note": "SBTC canon." },
+        { "href": "/inequality/library/books/goldin-katz-2008", "label": "Goldin & Katz (2008)", "note": "Education vs. technology." },
+        { "href": "/inequality/library/papers/gilens-page-2014", "label": "Gilens & Page (2014)", "note": "Read with its critiques." },
+        { "href": "/inequality/library/papers/chetty-hendren-kline-saez-2014", "label": "Chetty et al. (2014)", "note": "Mobility and place." },
+        { "href": "/inequality/library/papers/solt-2020", "label": "Solt (2020)", "note": "SWIID; use for cross-national work." },
+        { "href": "/inequality/library/bibliography.bib", "label": "Full bibliography (BibTeX)", "note": "All 22 entries, import-ready." }
+      ]
+    },
+    {
+      "id": "educator-media-kit",
+      "audience": "Educators & media",
+      "title": "Educator / journalist kit",
+      "description": "Charts with sourcing built in, balanced framing for contested claims, and the methodology page to cite.",
+      "items": [
+        { "href": "/inequality/data/us-top-income-shares", "label": "US top income shares chart", "note": "Data stamp + methodology + download, ready to cite." },
+        { "href": "/inequality/data/country-comparison", "label": "Country comparison (Gini)", "note": "Pick the countries your story or lesson needs." },
+        { "href": "/inequality/perspectives/does-inequality-hurt-growth", "label": "Does inequality hurt growth?", "note": "Balanced framing of a contested question." },
+        { "href": "/inequality/perspectives/gilens-page-debate", "label": "The Gilens–Page debate", "note": "A famous finding and its critics." },
+        { "href": "/inequality/learn/kuznets-curve", "label": "The Kuznets curve", "note": "A self-contained 10-minute lesson." },
+        { "href": "/inequality/about/how-we-verify-citations", "label": "How we verify citations", "note": "What 'verified' means on this site." }
+      ]
+    }
+  ]
+}

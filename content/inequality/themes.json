@@ -1,0 +1,52 @@
+[
+  {
+    "id": "foundational-theory",
+    "name": "Foundational Theory",
+    "description": "The classic models the rest of the field responds to."
+  },
+  {
+    "id": "measurement",
+    "name": "Measuring Inequality",
+    "description": "How inequality and top incomes are actually measured, and with what data."
+  },
+  {
+    "id": "growth-and-politics",
+    "name": "Inequality, Growth & Political Economy",
+    "description": "Whether and how inequality feeds back into growth through politics."
+  },
+  {
+    "id": "wage-inequality",
+    "name": "Wage Inequality & Labor Economics",
+    "description": "Skill-biased technological change, education, and the wage distribution."
+  },
+  {
+    "id": "mobility",
+    "name": "Opportunity & Mobility",
+    "description": "Intergenerational mobility and place-based opportunity."
+  },
+  {
+    "id": "political-science",
+    "name": "Political Science: Power & Democracy",
+    "description": "Whether political influence, not just markets, drives inequality."
+  },
+  {
+    "id": "wealth-inequality",
+    "name": "Wealth Inequality",
+    "description": "Capital concentration and inherited wealth, distinct from income."
+  },
+  {
+    "id": "global-inequality",
+    "name": "Global Inequality",
+    "description": "Between-country and worldwide income distribution."
+  },
+  {
+    "id": "institutions-and-growth",
+    "name": "Institutions & Long-Run Prosperity",
+    "description": "Why institutional design explains cross-country divergence."
+  },
+  {
+    "id": "social-outcomes",
+    "name": "Inequality & Social Outcomes",
+    "description": "Whether inequality itself (not just poverty) predicts social outcomes."
+  }
+]

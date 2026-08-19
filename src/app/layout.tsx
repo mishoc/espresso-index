@@ -19,11 +19,11 @@ const siteUrl =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "The Espresso Index",
+  title: { default: "The Espresso Index", template: "%s — The Espresso Index" },
   description:
     "What a shot of espresso costs in 196 economies — and what that reveals about purchasing power, inflation, and inequality.",
   openGraph: {
-    title: "The Espresso Index",
+    title: { default: "The Espresso Index", template: "%s — The Espresso Index" },
     description:
       "What a shot of espresso costs in 196 economies — and what that reveals about the economy behind the counter.",
     type: "website",
@@ -31,7 +31,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "The Espresso Index",
+    title: { default: "The Espresso Index", template: "%s — The Espresso Index" },
     description:
       "Espresso prices in 196 economies as a lens on global purchasing power.",
     images: ["/og.png"],

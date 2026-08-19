@@ -1,0 +1,29 @@
+export const meta = {
+  slug: "how-its-measured",
+  title: "How is inequality measured?",
+  summary: "Two families of measures dominate — summary indexes like the Gini coefficient, and top-income shares from tax data — and the choice of data source changes the answer.",
+  audience_level: "intermediate",
+  sources: ["piketty-saez-2003", "atkinson-piketty-saez-2011", "solt-2020", "piketty-2014"],
+};
+
+There is no single number for inequality. Which measure you pick, and which data it comes from, shapes the conclusion. Two approaches do most of the work in the research.
+
+## Summary indexes: the Gini coefficient
+
+The <GlossaryTerm term="Gini coefficient">A single number from 0 (everyone has the same income) to 100 (one person has all of it) summarizing how far a society's income distribution is from perfect equality.</GlossaryTerm> compresses a whole income distribution into one number between 0 (perfect equality) and 100 (one person has everything). It is the workhorse of cross-country comparison because almost every statistical agency produces one.
+
+The catch is comparability. Agencies define income differently — before or after taxes and transfers, per household or per person, gross or net. <Cite id="solt-2020" /> built the Standardized World Income Inequality Database (SWIID) to reconcile those definitions into one comparable panel, with uncertainty estimates attached. It is the dataset behind a large share of quantitative comparative research on inequality and democracy, precisely because it is the only source with wide enough country-and-year coverage. Our [country comparison chart](/inequality/data/country-comparison) uses it.
+
+## Top-income shares from tax records
+
+A Gini can hide a lot at the very top, because household surveys undercount the rich and cap ("top-code") the highest incomes. <Cite id="piketty-saez-2003" /> sidestepped that by building income series directly from individual tax returns — first for the United States back to 1913 — which is how we know the share of income going to the top 1 percent and top 10 percent with real precision over a century.
+
+<Cite id="atkinson-piketty-saez-2011" /> surveyed the method across more than twenty countries and laid out its hard parts: income definitions differ, tax avoidance and evasion bias the numbers, and comparability across tax systems takes care. Our [U.S. top-income-shares chart](/inequality/data/us-top-income-shares) uses data from the World Inequality Database, the successor project to that work.
+
+## Income is not wealth
+
+Both measures above are about *income* — what people earn in a year. *Wealth* — what they own — is more concentrated and harder to measure. <Cite id="piketty-2014" /> put wealth and inheritance back at the center of the debate; his data were also seriously challenged on exactly these measurement grounds, which is why the library flags that book as contested.
+
+## The practical rule
+
+When you see an inequality statistic, ask two questions: *which measure* (Gini? top-1% share?), and *which data source* (survey or tax records — and does it capture the top properly?). Every chart on this site answers both, with a "data as of" stamp.

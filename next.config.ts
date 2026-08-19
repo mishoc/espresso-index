@@ -1,7 +1,9 @@
 import type { NextConfig } from "next";
+import createMDX from "@next/mdx";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // MDX powers the Inequality section's explainers and perspectives.
+  pageExtensions: ["ts", "tsx", "md", "mdx"],
 };
 
-export default nextConfig;
+export default createMDX({})(nextConfig);

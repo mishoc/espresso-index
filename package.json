@@ -15,9 +15,17 @@
     "map:slim": "toposimplify -P 0.08 -q 1e4 -o src/data-map/countries-slim.json public/countries-50m.json",
     "data:refresh": "bun scripts/fetch-datasets.ts",
     "validate:datasets": "bun scripts/validate-datasets.ts",
-    "map:paths": "bun scripts/build-map-paths.ts"
+    "map:paths": "bun scripts/build-map-paths.ts",
+    "postbuild": "pagefind --site .next/server/app/inequality --output-path public/pagefind --glob \"**/*.html\"",
+    "sync:inequality": "tsx scripts/inequality/sync-wid.ts && tsx scripts/inequality/sync-swiid.ts",
+    "data:check": "tsx scripts/inequality/check-stale.ts",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@mdx-js/loader": "^3.1.1",
+    "@mdx-js/react": "^3.1.1",
+    "@next/mdx": "^16.3.1",
     "@observablehq/plot": "^0.6.17",
     "d3": "^7.9.0",
     "iso-3166": "^4.4.0",
@@ -27,10 +35,13 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.62.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@types/d3": "^7.4.3",
+    "@types/mdx": "^2.0.14",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -41,8 +52,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.2.10",
     "jsdom": "^29.1.1",
+    "pagefind": "^1.5.2",
     "tailwindcss": "^4",
     "topojson-simplify": "^3.0.3",
+    "tsx": "^4.23.12",
     "typescript": "^5",
     "unzipper": "^0.12.5",
     "vitest": "^4.1.9",

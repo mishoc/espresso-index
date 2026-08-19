@@ -17,6 +17,11 @@
      for fills and borders; small text uses these (≥4.5:1 on all surfaces). */
   --modeled-ink: #6b675c;
   --caution-ink: #8a6508;
+  /* Inequality section: link ink (AA on porcelain/paper) + status inks */
+  --crema-ink: #7a5a2a;
+  --verified-ink: #1e5a3f;
+  --unverified: #8a5a00;
+  --contested: #8b2e1f;
 }
 
 @theme inline {
@@ -30,6 +35,10 @@
   --color-modeled: var(--modeled);
   --color-modeled-ink: var(--modeled-ink);
   --color-caution-ink: var(--caution-ink);
+  --color-crema-ink: var(--crema-ink);
+  --color-verified-ink: var(--verified-ink);
+  --color-unverified: var(--unverified);
+  --color-contested: var(--contested);
   --color-error: var(--error);
   --color-card-border: var(--card-border);
   --font-display: var(--font-fraunces);
@@ -60,3 +69,10 @@ body {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* Inequality section prose (MDX explainers + perspectives) */
+.prose-site h2 { font-family: var(--font-fraunces), serif; font-size: 1.5rem; font-weight: 600; margin: 2rem 0 0.75rem; }
+.prose-site h3 { font-size: 1.2rem; font-weight: 600; margin: 1.5rem 0 0.5rem; }
+.prose-site p { margin: 0 0 1rem; }
+.prose-site ul { list-style: disc; padding-left: 1.5rem; margin: 0 0 1rem; }
+.prose-site a { color: var(--crema-ink); text-decoration: underline; text-underline-offset: 3px; }

@@ -11,3 +11,13 @@ This version has breaking changes — APIs, conventions, and file structure may 
 - New function → corresponding test. Bug fix → regression test. New error
   handling → a test that triggers the error. New conditional → tests for BOTH paths.
 - Never commit code that makes existing tests fail.
+
+## Inequality section (/inequality)
+
+Content, data, and editorial rules for the Inequality Explained section live
+under `content/inequality/` — read `content/inequality/CLAUDE.md` before
+touching anything there. Its two non-negotiables: never invent or estimate a
+citation count/DOI (null → "not independently verified"), and no policy
+positions. Section tests are `tests/inequality-*.test.ts` + `tests/e2e/`.
+Data refresh: `npm run sync:inequality` (WID via HTTP-Range zip extraction,
+SWIID via GitHub CSV); `npm run data:check` fails past 120 days.

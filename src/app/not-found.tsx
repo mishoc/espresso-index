@@ -13,7 +13,7 @@ export default function NotFound() {
         <p className="text-roast">
           The only free espresso on the site. This page doesn&apos;t exist.
         </p>
-        <Link href="/" className="text-crema underline underline-offset-4">
+        <Link href="/" className="text-crema-ink underline underline-offset-4">
           Back to the index
         </Link>
       </main>
