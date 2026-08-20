@@ -33,6 +33,10 @@ export interface LabState {
   to?: string;
   /** Bar mode: iso3 codes drawn in the highlight color (preset 3). */
   highlight?: string[];
+  /** Scatter: additional regression covariates (Tier 2), max 3. */
+  covars?: { ref: SeriesRef; log: boolean }[];
+  /** Scatter: per-region fits + table. */
+  groupBy?: "region";
 }
 
 export const LINE_SERIES_CAP = 12;
@@ -109,6 +113,21 @@ export function parseState(params: URLSearchParams): LabState {
     if (v && YEAR_RE.test(v)) s[k] = v;
   }
 
+  const covars = params.get("covars");
+  if (covars) {
+    const parsed = covars
+      .split(",")
+      .slice(0, 3)
+      .map((tok) => {
+        const log = tok.startsWith("log:");
+        const ref = parseRef(log ? tok.slice(4) : tok);
+        return ref && !isTimeRef(ref) ? { ref, log } : null;
+      })
+      .filter(Boolean) as { ref: SeriesRef; log: boolean }[];
+    if (parsed.length) s.covars = parsed;
+  }
+  if (params.get("groupby") === "region") s.groupBy = "region";
+
   const highlight = params.get("highlight");
   if (highlight) {
     const list = highlight
@@ -150,5 +169,8 @@ export function serializeState(s: LabState): string {
     if (s[k]) p.set(k, s[k]!);
   }
   if (s.highlight?.length) p.set("highlight", s.highlight.join(","));
+  if (s.type === "scatter" && s.covars?.length)
+    p.set("covars", s.covars.map((c) => `${c.log ? "log:" : ""}${refToString(c.ref)}`).join(","));
+  if (s.type === "scatter" && s.groupBy) p.set("groupby", s.groupBy);
   return p.toString();
 }

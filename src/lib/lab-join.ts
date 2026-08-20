@@ -109,3 +109,37 @@ export function olsFit(points: { x: number; y: number }[]): { a: number; b: numb
   const b = sxy / sxx;
   return { a: my - b * mx, b };
 }
+
+export interface MultiRow {
+  iso3: string;
+  /** aligned with the refs passed in; complete cases only */
+  values: number[];
+  dates: string[];
+}
+
+/** Multivariate join (Tier 2): for each iso3, the most recent observation
+ *  of EVERY series ≤ the selected year; countries missing any series are
+ *  dropped (complete cases). Same nearest-date rule as joinScatter. */
+export function joinMulti(
+  series: { rows: TidyRow[]; indicator: string }[],
+  year: string,
+  countries: string[] | "all",
+): MultiRow[] {
+  const maps = series.map((s) => latestPerCountry(s.rows, s.indicator, year));
+  const wanted = countries === "all" ? null : new Set(countries);
+  const out: MultiRow[] = [];
+  for (const [iso3, first] of maps[0]) {
+    if (wanted && !wanted.has(iso3)) continue;
+    const values = [first.value];
+    const dates = [first.date];
+    let ok = true;
+    for (let i = 1; i < maps.length; i++) {
+      const v = maps[i].get(iso3);
+      if (!v) { ok = false; break; }
+      values.push(v.value);
+      dates.push(v.date);
+    }
+    if (ok) out.push({ iso3, values, dates });
+  }
+  return out;
+}

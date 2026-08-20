@@ -6,6 +6,11 @@ import type { TidyRow } from "@/lib/datalab-types";
 import { countryName, indicatorLabel, REGION_BY_ISO3, TIER_BY_ISO3 } from "@/lib/lab-data";
 import type { JoinedPoint } from "@/lib/lab-join";
 import type { ScatterAnalysis } from "@/lib/lab-stats";
+
+export interface GroupFit {
+  region: string;
+  analysis: ScatterAnalysis<JoinedPoint>;
+}
 import { isTimeRef, type LabState } from "@/lib/lab-state";
 
 /** Categorical ramp: crema first (§4.2), then colorblind-safe. */
@@ -160,6 +165,7 @@ function buildScatterPlot(
   width: number,
   ghostYear?: string,
   analysis?: ScatterAnalysis<JoinedPoint> | null,
+  groupFits?: GroupFit[] | null,
 ) {
   const timeX = isTimeRef(state.x);
   const espressoAxis =
@@ -178,6 +184,17 @@ function buildScatterPlot(
         return { x, y: mode.logY ? Math.exp(ty) : ty };
       })
     : [];
+  const groupTrendPts = (groupFits ?? []).flatMap(({ region, analysis: a }) => {
+    if (!a.fit) return [];
+    const gx = a.used.map((d) => d.orig.x);
+    const [g0, g1] = [Math.min(...gx), Math.max(...gx)];
+    return Array.from({ length: 40 }, (_, i) => {
+      const f = i / 39;
+      const x = mode.logX ? g0 * Math.pow(g1 / g0, f) : g0 + (g1 - g0) * f;
+      const ty = a.fit!.intercept + a.fit!.slope * (mode.logX ? Math.log(x) : x);
+      return { x, y: mode.logY ? Math.exp(ty) : ty, region };
+    });
+  });
   const labelPts = state.labels && analysis
     ? [...analysis.residuals]
         .sort((a, b) => Math.abs(b.residual) - Math.abs(a.residual))
@@ -217,8 +234,11 @@ function buildScatterPlot(
             }),
           ]
         : []),
-      ...(trendPts.length
+      ...(trendPts.length && !groupFits?.length
         ? [Plot.line(trendPts, { x: "x", y: "y", stroke: "#6B4A32", strokeDasharray: "4 3" })]
+        : []),
+      ...(groupTrendPts.length
+        ? [Plot.line(groupTrendPts, { x: "x", y: "y", z: "region", stroke: "region", strokeWidth: 1.5, strokeDasharray: "4 3" })]
         : []),
       ...(labelPts.length
         ? [
@@ -259,6 +279,7 @@ export default function LabChart({
   barPoints,
   scatterPoints,
   scatterAnalysis,
+  groupFits,
   ghostYear,
   ariaLabel,
 }: {
@@ -267,6 +288,7 @@ export default function LabChart({
   barPoints?: BarPoint[];
   scatterPoints?: JoinedPoint[];
   scatterAnalysis?: ScatterAnalysis<JoinedPoint> | null;
+  groupFits?: GroupFit[] | null;
   ghostYear?: string;
   ariaLabel: string;
 }) {
@@ -281,7 +303,7 @@ export default function LabChart({
         state.type === "bar" && barPoints
           ? buildBarPlot(state, barPoints, width)
           : state.type === "scatter" && scatterPoints
-            ? buildScatterPlot(state, scatterPoints, width, ghostYear, scatterAnalysis)
+            ? buildScatterPlot(state, scatterPoints, width, ghostYear, scatterAnalysis, groupFits)
             : buildLinePlot(state, linePoints ?? [], width);
       // Plot labels its mark groups with aria-label on role-less <g>,
       // which axe rejects (aria-prohibited-attr). role=group permits it.
@@ -294,7 +316,7 @@ export default function LabChart({
     const ro = new ResizeObserver(render);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [state, linePoints, barPoints, scatterPoints, scatterAnalysis, ghostYear]);
+  }, [state, linePoints, barPoints, scatterPoints, scatterAnalysis, groupFits, ghostYear]);
 
   return (
     <div

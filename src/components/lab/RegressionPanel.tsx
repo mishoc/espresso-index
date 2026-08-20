@@ -2,7 +2,7 @@
 
 import { countryName } from "@/lib/lab-data";
 import type { JoinedPoint } from "@/lib/lab-join";
-import { slopeInWords, type ScatterAnalysis } from "@/lib/lab-stats";
+import { slopeInWords, type MultiFit, type ScatterAnalysis } from "@/lib/lab-stats";
 
 const fmtP = (p: number) => (p < 0.001 ? "< 0.001" : p.toFixed(3));
 const fmt = (v: number, d = 3) =>
@@ -14,10 +14,16 @@ export default function RegressionPanel({
   analysis,
   xLabel,
   yLabel,
+  multi,
+  groupFits,
+  onExportJoined,
 }: {
   analysis: ScatterAnalysis<JoinedPoint>;
   xLabel: string;
   yLabel: string;
+  multi?: { fit: MultiFit; n: number } | null;
+  groupFits?: { region: string; analysis: ScatterAnalysis<JoinedPoint> }[] | null;
+  onExportJoined?: () => void;
 }) {
   const { fit, mode, spearman, dropped, residuals } = analysis;
   if (!fit) return null;
@@ -96,6 +102,88 @@ export default function RegressionPanel({
           </table>
         </div>
       </details>
+
+      {groupFits && groupFits.length > 0 && (
+        <div className="mt-4">
+          <h3 className="font-medium">Per-region fits (regions with n ≥ 8)</h3>
+          <div className="mt-1 overflow-x-auto">
+            <table className="tabular w-full text-left">
+              <thead>
+                <tr className="border-b border-card-border text-xs text-modeled-ink uppercase tracking-wide">
+                  <th className="py-1 pr-4">Region</th>
+                  <th className="py-1 pr-4">slope β</th>
+                  <th className="py-1 pr-4">95% CI</th>
+                  <th className="py-1 pr-4">R²</th>
+                  <th className="py-1">n</th>
+                </tr>
+              </thead>
+              <tbody>
+                {groupFits.map(({ region, analysis: a }) => (
+                  <tr key={region} className="border-b border-card-border/60">
+                    <td className="py-1 pr-4">{region}</td>
+                    <td className="py-1 pr-4">{fmt(a.fit!.slope)}</td>
+                    <td className="py-1 pr-4">[{fmt(a.fit!.ci95[0])}, {fmt(a.fit!.ci95[1])}]</td>
+                    <td className="py-1 pr-4">{a.fit!.r2.toFixed(3)}</td>
+                    <td className="py-1">{a.fit!.n}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-1 text-xs text-modeled-ink">
+            Overlapping confidence intervals mean the slopes are not
+            distinguishable at this sample size.
+          </p>
+        </div>
+      )}
+
+      {multi && (
+        <div className="mt-4">
+          <h3 className="font-medium">
+            Multivariable OLS ({yLabel} ~ {multi.fit.coefs.slice(1).map((c) => c.name).join(" + ")})
+          </h3>
+          <div className="mt-1 overflow-x-auto">
+            <table className="tabular w-full text-left">
+              <thead>
+                <tr className="border-b border-card-border text-xs text-modeled-ink uppercase tracking-wide">
+                  <th className="py-1 pr-4">Term</th>
+                  <th className="py-1 pr-4">β</th>
+                  <th className="py-1 pr-4">95% CI</th>
+                  <th className="py-1 pr-4">SE</th>
+                  <th className="py-1 pr-4">t</th>
+                  <th className="py-1">p</th>
+                </tr>
+              </thead>
+              <tbody>
+                {multi.fit.coefs.map((c) => (
+                  <tr key={c.name} className="border-b border-card-border/60">
+                    <td className="py-1 pr-4">{c.name}</td>
+                    <td className="py-1 pr-4">{fmt(c.beta)}</td>
+                    <td className="py-1 pr-4">[{fmt(c.ci95[0])}, {fmt(c.ci95[1])}]</td>
+                    <td className="py-1 pr-4">{fmt(c.se)}</td>
+                    <td className="py-1 pr-4">{c.t.toFixed(2)}</td>
+                    <td className="py-1">{fmtP(c.p)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-1 text-xs text-modeled-ink">
+            R² {multi.fit.r2.toFixed(3)} · adjusted R² {multi.fit.adjR2.toFixed(3)} · n ={" "}
+            {multi.fit.n} complete cases (countries with data for every
+            variable). The chart above still shows the two-variable relation;
+            this table is the joint model.
+            {onExportJoined && (
+              <>
+                {" "}
+                <button onClick={onExportJoined} className="underline underline-offset-2 hover:text-espresso">
+                  Download the joined dataset (CSV)
+                </button>
+              </>
+            )}
+          </p>
+        </div>
+      )}
 
       <p className="mt-3 text-xs text-modeled-ink">
         Descriptive association in a cross-country snapshot — not a causal

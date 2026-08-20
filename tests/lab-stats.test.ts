@@ -96,3 +96,36 @@ describe("slopeInWords", () => {
     expect(slopeInWords(fit, { logX: false, logY: true }, "X", "Y")).toContain("%");
   });
 });
+
+describe("olsMulti — verified against numpy.linalg.lstsq (fixture computed independently)", () => {
+  const rows = [
+    [2, 5], [3, 2], [5, 8], [7, 3], [9, 9], [11, 1], [13, 7], [15, 4],
+  ];
+  const y = [3.1, 4.2, 7.9, 9.3, 13.0, 13.9, 17.5, 18.2];
+
+  it("matches numpy betas, SEs, t, R², adjusted R²", async () => {
+    const { olsMulti } = await import("@/lib/lab-stats");
+    const fit = olsMulti(rows, y, ["x1", "x2"])!;
+    expect(fit.coefs[0].beta).toBeCloseTo(0.095821, 5);
+    expect(fit.coefs[1].beta).toBeCloseTo(1.197292, 5);
+    expect(fit.coefs[2].beta).toBeCloseTo(0.21819, 5);
+    expect(fit.coefs[0].se).toBeCloseTo(0.451672, 5);
+    expect(fit.coefs[1].se).toBeCloseTo(0.037683, 5);
+    expect(fit.coefs[2].se).toBeCloseTo(0.061118, 5);
+    expect(fit.coefs[1].t).toBeCloseTo(31.772749, 4);
+    expect(fit.coefs[2].t).toBeCloseTo(3.569974, 4);
+    expect(fit.r2).toBeCloseTo(0.995173, 5);
+    expect(fit.adjR2).toBeCloseTo(0.993242, 5);
+    expect(fit.df).toBe(5);
+    // p for t=3.57, df=5 sits between 0.01 and 0.02 (t.995(5)=4.032, t.99(5)=3.365)
+    expect(fit.coefs[2].p).toBeGreaterThan(0.01);
+    expect(fit.coefs[2].p).toBeLessThan(0.02);
+  });
+
+  it("returns null for collinear designs and tiny n", async () => {
+    const { olsMulti } = await import("@/lib/lab-stats");
+    const collinear = rows.map(([a]) => [a, 2 * a]);
+    expect(olsMulti(collinear, y, ["x1", "x2"])).toBeNull();
+    expect(olsMulti([[1, 2], [2, 3]], [1, 2], ["a", "b"])).toBeNull();
+  });
+});

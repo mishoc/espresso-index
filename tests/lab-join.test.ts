@@ -100,3 +100,20 @@ describe("olsFit", () => {
     expect(olsFit([{ x: 2, y: 1 }, { x: 2, y: 5 }, { x: 2, y: 9 }])).toBeNull();
   });
 });
+
+describe("joinMulti — complete cases across every series (Tier 2)", () => {
+  it("keeps only countries present in all series, most recent ≤ year", async () => {
+    const { joinMulti } = await import("../src/lib/lab-join");
+    const a = [row("ITA", "2024", "p", 1.45), row("FRA", "2025", "p", 2.5), row("DEU", "2025", "p", 2.6)];
+    const b = [row("ITA", "2023", "g", 40000), row("ITA", "2025", "g", 43000), row("FRA", "2024", "g", 44000)];
+    const c = [row("ITA", "2022", "w", 1200), row("FRA", "2021", "w", 1600), row("DEU", "2024", "w", 2000)];
+    const got = joinMulti(
+      [{ rows: a, indicator: "p" }, { rows: b, indicator: "g" }, { rows: c, indicator: "w" }],
+      "2026",
+      "all",
+    );
+    // DEU missing from b → dropped; ITA takes 2025 g (not 2023)
+    expect(got.map((r) => r.iso3).sort()).toEqual(["FRA", "ITA"]);
+    expect(got.find((r) => r.iso3 === "ITA")!.values).toEqual([1.45, 43000, 1200]);
+  });
+});

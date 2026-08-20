@@ -70,6 +70,18 @@ describe("lab URL state", () => {
     expect(parse(serializeState(state))).toEqual(state);
   });
 
+  it("round-trips covariates (with log prefixes) and group-by", () => {
+    const state = parse(
+      "type=scatter&x=wdi-gdppc.gdp_per_capita_usd&y=espresso.priceUSD&countries=all&covars=log:dbn-minwage.min_wage_usd_month,oecd-hours.hours_per_year&groupby=region&year=2026",
+    );
+    expect(state.covars).toEqual([
+      { ref: { dataset: "dbn-minwage", indicator: "min_wage_usd_month" }, log: true },
+      { ref: { dataset: "oecd-hours", indicator: "hours_per_year" }, log: false },
+    ]);
+    expect(state.groupBy).toBe("region");
+    expect(parse(serializeState(state))).toEqual(state);
+  });
+
   it("parseRef rejects malformed refs", () => {
     expect(parseRef("wdi-gdppc.gdp_per_capita_usd")).toEqual({
       dataset: "wdi-gdppc",

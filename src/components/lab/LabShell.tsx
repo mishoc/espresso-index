@@ -4,6 +4,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import type { TidyRow } from "@/lib/datalab-types";
+import { REGION_BY_ISO3 } from "@/lib/lab-data";
+import type { JoinedPoint } from "@/lib/lab-join";
 import {
   attribution,
   countryName,
@@ -14,8 +16,8 @@ import {
   manifest,
   manifestById,
 } from "@/lib/lab-data";
-import { joinScatter, timeScatter } from "@/lib/lab-join";
-import { analyzeScatter } from "@/lib/lab-stats";
+import { joinMulti, joinScatter, timeScatter } from "@/lib/lab-join";
+import { analyzeScatter, olsMulti, type MultiFit, type ScatterAnalysis } from "@/lib/lab-stats";
 import RegressionPanel from "./RegressionPanel";
 import { toIndex100, toYoY } from "@/lib/lab-transform";
 import { downloadCsv, svgToPng } from "@/lib/lab-export";
@@ -54,7 +56,7 @@ const PRESETS = presetsJson as { id: string; title: string; blurb: string; param
 
 function neededDatasets(state: LabState): string[] {
   if (state.type !== "scatter") return [state.series.dataset];
-  const ids = [state.x, state.y]
+  const ids = [state.x, state.y, ...(state.covars ?? []).map((c) => c.ref)]
     .filter((r) => !isTimeRef(r))
     .map((r) => r.dataset);
   return [...new Set(ids)];
@@ -256,6 +258,51 @@ export default function LabShell() {
   );
   const r = scatterAnalysis?.fit?.r ?? NaN;
 
+  /** Tier 2: multivariable OLS on complete cases (y ~ x + covariates),
+   *  transforms applied per-variable. Chart still shows the bivariate
+   *  relation; the panel labels the difference. */
+  const multi = useMemo(() => {
+    if (load.phase !== "ready" || state.type !== "scatter" || isTimeRef(state.x) || !state.covars?.length)
+      return null;
+    const covars = state.covars;
+    const joined = joinMulti(
+      [
+        { rows: load.rows[state.y.dataset], indicator: state.y.indicator },
+        { rows: load.rows[state.x.dataset], indicator: state.x.indicator },
+        ...covars.map((c) => ({ rows: load.rows[c.ref.dataset], indicator: c.ref.indicator })),
+      ],
+      state.year ?? "2026",
+      state.countries,
+    );
+    const logs = [scatterMode.logY, scatterMode.logX, ...covars.map((c) => c.log)];
+    const usable = joined.filter((row) => row.values.every((v, i) => !logs[i] || v > 0));
+    const y = usable.map((row) => (logs[0] ? Math.log(row.values[0]) : row.values[0]));
+    const rows = usable.map((row) => row.values.slice(1).map((v, i) => (logs[i + 1] ? Math.log(v) : v)));
+    const names = [
+      `${scatterMode.logX ? "log " : ""}${indicatorLabel(state.x.dataset, state.x.indicator)}`,
+      ...covars.map((c) => `${c.log ? "log " : ""}${indicatorLabel(c.ref.dataset, c.ref.indicator)}`),
+    ];
+    const fit = olsMulti(rows, y, names);
+    return fit ? { fit, joined: usable, names, logs } : null;
+  }, [load, state, scatterMode]);
+
+  /** Tier 2: per-region fits (min n = 8 per group to avoid noise fits). */
+  const groupFits = useMemo(() => {
+    if (state.type !== "scatter" || state.groupBy !== "region" || scatterPoints.length < 3) return null;
+    const byRegion = new Map<string, JoinedPoint[]>();
+    for (const p of scatterPoints) {
+      const reg = REGION_BY_ISO3.get(p.iso3) ?? "Other";
+      (byRegion.get(reg) ?? byRegion.set(reg, []).get(reg)!).push(p);
+    }
+    const out: { region: string; analysis: ScatterAnalysis<JoinedPoint> }[] = [];
+    for (const [region, pts] of byRegion) {
+      if (pts.length < 8) continue;
+      const a = analyzeScatter(pts, scatterMode);
+      if (a.fit) out.push({ region, analysis: a });
+    }
+    return out.sort((a, b) => a.region.localeCompare(b.region));
+  }, [state.type, state.groupBy, scatterPoints, scatterMode]);
+
   const selected = useMemo(
     () => (state.countries === "all" ? [] : (state.countries as string[])),
     [state.countries],
@@ -346,6 +393,25 @@ export default function LabShell() {
     }
   };
 
+  const exportJoined = () => {
+    if (!multi) return;
+    const { joined, fit } = multi;
+    downloadCsv(
+      "espresso-lab-joined.csv",
+      [
+        "iso3", "country", "region",
+        `y_${state.y.indicator}`, `x_${state.x.indicator}`,
+        ...(state.covars ?? []).map((c) => c.ref.indicator),
+        "fitted_transformed", "residual_transformed",
+      ],
+      joined.map((row, i) => [
+        row.iso3, countryName(row.iso3), REGION_BY_ISO3.get(row.iso3) ?? "",
+        ...row.values,
+        fit.fitted[i], fit.residuals[i],
+      ]),
+    );
+  };
+
   const applyPreset = (params: string) => {
     dirty.current = true;
     setState(parseState(new URLSearchParams(params)));
@@ -400,6 +466,71 @@ export default function LabShell() {
               />
               Trend line (OLS)
             </label>
+            {!isTimeRef(state.x) && (
+              <div>
+                <p className="mb-1.5 text-xs font-medium tracking-wide text-modeled-ink uppercase">
+                  Control for ({(state.covars ?? []).length}/3)
+                </p>
+                {(state.covars ?? []).map((c, i) => (
+                  <div key={refToString(c.ref)} className="mb-1 flex items-center gap-2 text-xs">
+                    <button
+                      onClick={() => update({ covars: state.covars!.filter((_, j) => j !== i) })}
+                      title="Remove covariate"
+                      className="rounded-[4px] border border-card-border bg-paper px-2 py-1 hover:border-error hover:text-error"
+                    >
+                      {indicatorLabel(c.ref.dataset, c.ref.indicator)} ✕
+                    </button>
+                    <label className="flex items-center gap-1">
+                      <input
+                        type="checkbox"
+                        checked={c.log}
+                        onChange={(e) =>
+                          update({ covars: state.covars!.map((cc, j) => (j === i ? { ...cc, log: e.target.checked } : cc)) })
+                        }
+                      />
+                      log
+                    </label>
+                  </div>
+                ))}
+                {(state.covars ?? []).length < 3 && (
+                  <select
+                    value=""
+                    aria-label="Add a covariate"
+                    onChange={(e) => {
+                      const ref = parseRef(e.target.value);
+                      if (!ref) return;
+                      const dup = [state.x, state.y, ...(state.covars ?? []).map((c) => c.ref)].some(
+                        (rr) => refToString(rr) === refToString(ref),
+                      );
+                      if (dup) return;
+                      update({ covars: [...(state.covars ?? []), { ref, log: false }] });
+                    }}
+                    className="min-h-[36px] w-full rounded-[6px] border border-card-border bg-paper px-2 text-xs"
+                  >
+                    <option value="">+ add a covariate…</option>
+                    {manifest.flatMap((d) =>
+                      d.indicators
+                        .filter((i) => i.code !== "tier")
+                        .map((i) => (
+                          <option key={`${d.id}.${i.code}`} value={`${d.id}.${i.code}`}>
+                            {d.name} — {i.label}
+                          </option>
+                        )),
+                    )}
+                  </select>
+                )}
+              </div>
+            )}
+            {!isTimeRef(state.x) && (
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={state.groupBy === "region"}
+                  onChange={(e) => update({ groupBy: e.target.checked ? "region" : undefined })}
+                />
+                Fit per region
+              </label>
+            )}
           </>
         ) : (
           <SeriesPicker
@@ -747,6 +878,7 @@ export default function LabShell() {
                   barPoints={barPoints}
                   scatterPoints={scatterPoints}
                   scatterAnalysis={scatterAnalysis}
+                  groupFits={groupFits}
                   ghostYear={
                     state.type === "scatter"
                       ? (state.year ?? state.to)
@@ -766,6 +898,9 @@ export default function LabShell() {
             analysis={scatterAnalysis}
             xLabel={isTimeRef(state.x) ? "year" : indicatorLabel(state.x.dataset, state.x.indicator)}
             yLabel={indicatorLabel(state.y.dataset, state.y.indicator)}
+            multi={multi ? { fit: multi.fit, n: multi.joined.length } : null}
+            groupFits={groupFits}
+            onExportJoined={multi ? exportJoined : undefined}
           />
         )}
         <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-modeled-ink">

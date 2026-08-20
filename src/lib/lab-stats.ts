@@ -234,3 +234,84 @@ export function analyzeScatter<T extends XY>(points: T[], mode: TransformMode): 
     residuals: fit ? residuals(used, fit) : [],
   };
 }
+
+/* ---------- multivariable OLS (Tier 2) ---------- */
+
+export interface MultiCoef {
+  name: string;
+  beta: number;
+  se: number;
+  t: number;
+  p: number;
+  ci95: [number, number];
+}
+
+export interface MultiFit {
+  n: number;
+  k: number; // predictors incl. intercept
+  df: number;
+  coefs: MultiCoef[]; // [intercept, ...predictors]
+  r2: number;
+  adjR2: number;
+  fitted: number[];
+  residuals: number[];
+}
+
+/** Gauss–Jordan inverse for the small symmetric XᵀX (k ≤ 6 here). */
+function invert(m: number[][]): number[][] | null {
+  const k = m.length;
+  const a = m.map((row, i) => [...row, ...Array.from({ length: k }, (_, j) => (i === j ? 1 : 0))]);
+  for (let col = 0; col < k; col++) {
+    let piv = col;
+    for (let r = col + 1; r < k; r++) if (Math.abs(a[r][col]) > Math.abs(a[piv][col])) piv = r;
+    if (Math.abs(a[piv][col]) < 1e-12) return null; // singular / collinear
+    [a[col], a[piv]] = [a[piv], a[col]];
+    const d = a[col][col];
+    for (let j = 0; j < 2 * k; j++) a[col][j] /= d;
+    for (let r = 0; r < k; r++) {
+      if (r === col) continue;
+      const f = a[r][col];
+      for (let j = 0; j < 2 * k; j++) a[r][j] -= f * a[col][j];
+    }
+  }
+  return a.map((row) => row.slice(k));
+}
+
+/** OLS of y on [1, x1, …, xm]. `names` labels the predictors (not the
+ *  intercept). Returns null if n ≤ k or the design is collinear. */
+export function olsMulti(rows: number[][], y: number[], names: string[]): MultiFit | null {
+  const n = y.length;
+  const k = (rows[0]?.length ?? 0) + 1;
+  if (n <= k || rows.some((r) => r.length !== k - 1)) return null;
+  const X = rows.map((r) => [1, ...r]);
+  // XᵀX and Xᵀy
+  const xtx = Array.from({ length: k }, (_, i) =>
+    Array.from({ length: k }, (_, j) => X.reduce((s, row) => s + row[i] * row[j], 0)),
+  );
+  const xty = Array.from({ length: k }, (_, i) => X.reduce((s, row, r) => s + row[i] * y[r], 0));
+  const inv = invert(xtx);
+  if (!inv) return null;
+  const beta = inv.map((row) => row.reduce((s, v, j) => s + v * xty[j], 0));
+  const fitted = X.map((row) => row.reduce((s, v, j) => s + v * beta[j], 0));
+  const residuals = y.map((v, i) => v - fitted[i]);
+  const sse = residuals.reduce((s, e) => s + e * e, 0);
+  const my = y.reduce((s, v) => s + v, 0) / n;
+  const sst = y.reduce((s, v) => s + (v - my) ** 2, 0);
+  if (sst === 0) return null;
+  const df = n - k;
+  const s2 = sse / df;
+  const tCrit = tQuantile975(df);
+  const coefs: MultiCoef[] = beta.map((b, i) => {
+    const se = Math.sqrt(Math.max(0, s2 * inv[i][i]));
+    const t = se === 0 ? Infinity : b / se;
+    return {
+      name: i === 0 ? "(intercept)" : names[i - 1],
+      beta: b,
+      se,
+      t,
+      p: twoTailedT(Math.abs(t), df),
+      ci95: [b - tCrit * se, b + tCrit * se],
+    };
+  });
+  return { n, k, df, coefs, r2: 1 - sse / sst, adjR2: 1 - ((1 - (1 - sse / sst)) * (n - 1)) / df, fitted, residuals };
+}
