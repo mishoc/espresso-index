@@ -40,9 +40,13 @@ interface Tip {
 export default function LabMap({
   state,
   values,
+  scheme = interpolateBlues,
 }: {
   state: LabState;
   values: Map<string, number>;
+  /** d3 sequential interpolator — Blues by default; pages embedding the
+   *  map (e.g. the inequality choropleth) can pass a warmer ramp. */
+  scheme?: (t: number) => string;
 }) {
   const [geo, setGeo] = useState<MapGeometry | null>(null);
   const [failed, setFailed] = useState(false);
@@ -76,7 +80,7 @@ export default function LabMap({
   const [min, max] = vals.length
     ? [Math.min(...vals), Math.max(...vals)]
     : [0, 1];
-  const color = scaleSequential(interpolateBlues).domain([
+  const color = scaleSequential(scheme).domain([
     min - (max - min) * 0.1,
     max,
   ]);

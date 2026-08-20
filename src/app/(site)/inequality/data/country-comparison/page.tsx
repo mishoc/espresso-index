@@ -17,7 +17,7 @@ export default function Page() {
       title="Compare countries: income inequality over time"
       caption={`Pick two to four countries and compare their Gini coefficients (0 = perfect equality, 100 = one person has everything). In the latest year, the United States sits near ${us.gini_disp.toFixed(0)} and Sweden near ${se.gini_disp.toFixed(0)} on disposable income.`}
       meta={meta}
-      downloadHref="/data/swiid-gini.json"
+      downloadHref="/data/inequality/swiid-gini.json"
       howToRead={
         <p>
           Higher is more unequal. The shaded band is SWIID&apos;s uncertainty from harmonizing different national sources — differences smaller than the bands shouldn&apos;t be over-read. Disposable income means after taxes and transfers. Background: <Link href="/inequality/learn/how-its-measured" className="text-crema-ink underline underline-offset-2">how inequality is measured</Link>; the dataset paper: <Link href="/inequality/library/papers/solt-2020" className="text-crema-ink underline underline-offset-2">Solt (2020)</Link>.

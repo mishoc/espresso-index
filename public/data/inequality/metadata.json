@@ -1,26 +1,38 @@
 {
-  "wid-us-top-shares": {
-    "id": "wid-us-top-shares",
-    "name": "US top income shares (pre-tax)",
-    "source_org": "World Inequality Database (WID.world)",
-    "url": "https://wid.world/country/usa/",
-    "license": "CC BY 4.0 (WID.world terms)",
-    "source_version": "WID bulk data, latest year 2024",
-    "coverage": "United States, 1820–2024",
-    "update_frequency": "WID updates annually; we re-sync at least every 120 days",
-    "last_synced": "2026-08-19",
-    "methodology": "Share of pre-tax national income (before taxes and transfers, after pension/unemployment insurance) received by each group, equal-split among adult couples, age 20+. WID variable sptincj992. Pre-tax shares are the standard series in the Piketty–Saez tradition; post-tax shares are lower at the top."
-  },
-  "swiid-gini": {
-    "id": "swiid-gini",
-    "name": "Gini coefficients, cross-national (SWIID)",
-    "source_org": "Standardized World Income Inequality Database (Frederick Solt)",
-    "url": "https://fsolt.org/swiid/",
-    "license": "CC BY 4.0",
-    "source_version": "swiid_summary.csv (GitHub mirror), latest year 2025",
-    "coverage": "199 countries, 1960–2025",
-    "update_frequency": "SWIID releases roughly annually; we re-sync at least every 120 days",
-    "last_synced": "2026-08-19",
-    "methodology": "Disposable-income (post-tax, post-transfer) Gini on a 0–100 scale, with SWIID's standard-error band reflecting the uncertainty introduced by harmonizing national sources. Market-income Gini shown where available. SWIID standardizes differing national definitions (household vs. individual, gross vs. net); see Solt (2020)."
-  }
+ "wid-us-top-shares": {
+  "id": "wid-us-top-shares",
+  "name": "US top income shares (pre-tax)",
+  "source_org": "World Inequality Database (WID.world)",
+  "url": "https://wid.world/country/usa/",
+  "license": "CC BY 4.0 (WID.world terms)",
+  "source_version": "WID bulk data, latest year 2024",
+  "coverage": "United States, 1820–2024",
+  "update_frequency": "WID updates annually; we re-sync at least every 120 days",
+  "last_synced": "2026-08-19",
+  "methodology": "Share of pre-tax national income (before taxes and transfers, after pension/unemployment insurance) received by each group, equal-split among adult couples, age 20+. WID variable sptincj992. Pre-tax shares are the standard series in the Piketty–Saez tradition; post-tax shares are lower at the top."
+ },
+ "swiid-gini": {
+  "id": "swiid-gini",
+  "name": "Gini coefficients, cross-national (SWIID)",
+  "source_org": "Standardized World Income Inequality Database (Frederick Solt)",
+  "url": "https://fsolt.org/swiid/",
+  "license": "CC BY 4.0",
+  "source_version": "swiid_summary.csv (GitHub mirror), latest year 2025",
+  "coverage": "199 countries, 1960–2025",
+  "update_frequency": "SWIID releases roughly annually; we re-sync at least every 120 days",
+  "last_synced": "2026-08-19",
+  "methodology": "Disposable-income (post-tax, post-transfer) Gini on a 0–100 scale, with SWIID's standard-error band reflecting the uncertainty introduced by harmonizing national sources. Market-income Gini shown where available. SWIID standardizes differing national definitions (household vs. individual, gross vs. net); see Solt (2020)."
+ },
+ "wdi-gini": {
+  "id": "wdi-gini",
+  "name": "Gini index (World Bank)",
+  "source_org": "World Bank",
+  "url": "https://data.worldbank.org/indicator/SI.POV.GINI",
+  "license": "CC-BY 4.0",
+  "source_version": "World Development Indicators, SI.POV.GINI",
+  "coverage": "171 countries, survey years 1963–2025",
+  "update_frequency": "WDI updates several times a year; we re-sync at least every 120 days",
+  "last_synced": "2026-08-20",
+  "methodology": "Gini index on a 0–100 scale (0 = perfect equality) estimated by the World Bank's Poverty and Inequality Platform from primary household surveys. Surveys measure income in some countries and consumption in others, and survey years vary widely — each country on the map shows its most recent survey, so values are not all from the same year and are not perfectly comparable across measurement types. For a series standardized across those differences, see the SWIID comparison page."
+ }
 }

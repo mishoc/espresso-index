@@ -140,3 +140,23 @@ export async function fetchWdiInflation(): Promise<FetcherResult> {
     },
   };
 }
+
+export async function fetchWdiGini(): Promise<FetcherResult> {
+  const rows = await wdiRows("SI.POV.GINI", "gini_index", 1960, { decimals: 1 });
+  return {
+    rows,
+    manifest: {
+      ...WB_COMMON,
+      id: "wdi-gini",
+      name: "Gini index",
+      description:
+        "Income inequality on a 0–100 scale (0 = perfect equality) from household surveys; survey years vary by country.",
+      sourceUrl: "https://data.worldbank.org/indicator/SI.POV.GINI",
+      unit: "index (0–100)",
+      coverage: coverage(rows),
+      indicators: [{ code: "gini_index", label: "Gini index (0–100)" }],
+      // WB's published range runs from Slovakia ~21 to South Africa ~65.
+      bounds: { gini_index: { min: 15, max: 75 } },
+    },
+  };
+}

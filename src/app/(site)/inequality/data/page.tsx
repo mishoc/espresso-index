@@ -5,8 +5,9 @@ export const metadata = { title: "Data Explorer" };
 
 export default function DataHub() {
   const live = [
-    { href: "/data/us-top-income-shares", title: "US top income shares, 1913–today", meta: DATASET_META["wid-us-top-shares"], blurb: "The top 1% and top 10% share of pre-tax income across a century of tax data." },
-    { href: "/data/country-comparison", title: "Compare countries: Gini over time", meta: DATASET_META["swiid-gini"], blurb: "Pick 2–4 countries and compare standardized Gini coefficients with uncertainty bands." },
+    { href: "/inequality/data/us-top-income-shares", title: "US top income shares, 1913–today", meta: DATASET_META["wid-us-top-shares"], blurb: "The top 1% and top 10% share of pre-tax income across a century of tax data." },
+    { href: "/inequality/data/country-comparison", title: "Compare countries: Gini over time", meta: DATASET_META["swiid-gini"], blurb: "Pick 2–4 countries and compare standardized Gini coefficients with uncertainty bands." },
+    { href: "/inequality/data/gini-world-map", title: "World map: income inequality", meta: DATASET_META["wdi-gini"], blurb: "A heat map of the World Bank Gini index — every country's most recent household survey, with a year slider." },
   ];
   const deferred = [
     { title: "Mobility map (Opportunity Atlas)", note: "Coming later — place-level intergenerational mobility, pending embed/reuse terms." },

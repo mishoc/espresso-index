@@ -276,6 +276,36 @@
     "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
     "license": "CC-BY 4.0",
     "frequency": "annual",
+    "id": "wdi-gini",
+    "name": "Gini index",
+    "description": "Income inequality on a 0–100 scale (0 = perfect equality) from household surveys; survey years vary by country.",
+    "sourceUrl": "https://data.worldbank.org/indicator/SI.POV.GINI",
+    "unit": "index (0–100)",
+    "coverage": {
+      "from": "1963",
+      "to": "2025",
+      "countries": 171
+    },
+    "indicators": [
+      {
+        "code": "gini_index",
+        "label": "Gini index (0–100)"
+      }
+    ],
+    "bounds": {
+      "gini_index": {
+        "min": 15,
+        "max": 75
+      }
+    },
+    "updated": "2026-08-20",
+    "bytes": 162323
+  },
+  {
+    "sourceName": "World Bank",
+    "attribution": "Source: World Bank Open Data (CC-BY 4.0)",
+    "license": "CC-BY 4.0",
+    "frequency": "annual",
     "id": "wdi-inflation",
     "name": "Inflation (CPI %)",
     "description": "Consumer price inflation, annual percent change, all countries.",

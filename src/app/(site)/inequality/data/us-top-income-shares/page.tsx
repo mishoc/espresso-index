@@ -19,7 +19,7 @@ export default function Page() {
       title="US top income shares, 1913–today"
       caption={`In ${latest.year}, the top 1% of US adults received about ${latest.share.toFixed(0)}% of all pre-tax income and the top 10% about ${latest10.share.toFixed(0)}% — the U-shaped century first documented from tax records by Piketty and Saez.`}
       meta={meta}
-      downloadHref="/data/wid-us-top-shares.json"
+      downloadHref="/data/inequality/wid-us-top-shares.json"
       howToRead={
         <p>
           Each line is the slice of the nation&apos;s total pre-tax income going to that group in a given year. Read left to right: high concentration before 1929, a sharp fall through the Depression and WWII, decades of low concentration, then a climb from around 1980. These are <em>pre-tax</em> shares — after taxes and transfers the top shares are lower. Background: <Link href="/inequality/learn/how-its-measured" className="text-crema-ink underline underline-offset-2">how inequality is measured</Link>; the original paper: <Link href="/inequality/library/papers/piketty-saez-2003" className="text-crema-ink underline underline-offset-2">Piketty &amp; Saez (2003)</Link>.

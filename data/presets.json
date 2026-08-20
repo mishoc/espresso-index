@@ -34,5 +34,11 @@
     "title": "Minimum wage vs. espresso burden",
     "blurb": "Where a shot costs the biggest slice of a minimum-wage day.",
     "params": "type=scatter&x=dbn-minwage.min_wage_usd_month&y=espresso.burdenPct&countries=all&scale=log&trend=1&year=2026"
+  },
+  {
+    "id": "gini-map",
+    "title": "Income inequality heat map",
+    "blurb": "The World Bank Gini index, mapped — each country's most recent survey.",
+    "params": "type=map&series=wdi-gini.gini_index&countries=all"
   }
 ]
