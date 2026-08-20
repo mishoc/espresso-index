@@ -65,3 +65,20 @@ function triggerDownload(url: string, filename: string) {
   a.click();
   setTimeout(() => URL.revokeObjectURL(url), 5000);
 }
+
+/** "Cite this analysis" (Tier 3): a self-contained citation carrying the
+ *  model spec, key statistics, every dataset's vintage, and the permalink.
+ *  Pure so it can be tested. */
+export function citeAnalysis(opts: {
+  spec: string;
+  stats: string;
+  datasets: { name: string; updated: string }[];
+  url: string;
+  retrieved: string;
+}): string {
+  const data = opts.datasets.map((d) => `${d.name} (updated ${d.updated})`).join("; ");
+  return (
+    `The Espresso Index Data Lab. ${opts.spec}. ${opts.stats}. ` +
+    `Data: ${data}. Retrieved ${opts.retrieved}. ${opts.url}`
+  );
+}

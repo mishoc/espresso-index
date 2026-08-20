@@ -17,10 +17,10 @@ import {
   manifestById,
 } from "@/lib/lab-data";
 import { joinMulti, joinScatter, timeScatter } from "@/lib/lab-join";
-import { analyzeScatter, olsMulti, type MultiFit, type ScatterAnalysis } from "@/lib/lab-stats";
+import { analyzeScatter, bootstrapPearsonCI, cooksThreshold, influence, olsMulti, slopeWithout, type MultiFit, type ScatterAnalysis } from "@/lib/lab-stats";
 import RegressionPanel from "./RegressionPanel";
 import { toIndex100, toYoY } from "@/lib/lab-transform";
-import { downloadCsv, svgToPng } from "@/lib/lab-export";
+import { citeAnalysis, downloadCsv, svgToPng } from "@/lib/lab-export";
 import presetsJson from "../../../data/presets.json";
 import {
   isTimeRef,
@@ -112,7 +112,7 @@ export default function LabShell() {
   const [loaded, setLoaded] = useState<Loaded | null>(null);
   const [retryTick, setRetryTick] = useState(0);
   const [search, setSearch] = useState("");
-  const [toast, setToast] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
   const [playing, setPlaying] = useState(false);
 
   /** URL is the source of truth — synced via effect after any user change
@@ -286,6 +286,50 @@ export default function LabShell() {
     return fit ? { fit, joined: usable, names, logs } : null;
   }, [load, state, scatterMode]);
 
+  /** Tier 3: bootstrap CI for r and influence diagnostics. */
+  const rBootCI = useMemo(
+    () =>
+      scatterAnalysis?.fit
+        ? bootstrapPearsonCI(scatterAnalysis.used.map((d) => d.t), 1000, 42)
+        : null,
+    [scatterAnalysis],
+  );
+  const influenceInfo = useMemo(() => {
+    if (!scatterAnalysis?.fit) return null;
+    const inf = influence(scatterAnalysis.used, scatterAnalysis.fit);
+    const thr = cooksThreshold(scatterAnalysis.fit.n);
+    const flagged = inf.filter((p) => p.cooksD > thr).sort((a, b) => b.cooksD - a.cooksD).slice(0, 8);
+    if (!flagged.length) return { flagged, threshold: thr, refit: null };
+    const refit = slopeWithout(scatterAnalysis.used, new Set(flagged.map((f) => f.orig)));
+    return { flagged, threshold: thr, refit };
+  }, [scatterAnalysis]);
+
+  const citeThis = async () => {
+    if (!scatterAnalysis?.fit) return;
+    const f = scatterAnalysis.fit;
+    const xL = isTimeRef(state.x) ? "year" : indicatorLabel(state.x.dataset, state.x.indicator);
+    const yL = indicatorLabel(state.y.dataset, state.y.indicator);
+    const spec = `OLS: ${scatterMode.logY ? `log(${yL})` : yL} ~ ${scatterMode.logX ? `log(${xL})` : xL}${state.covars?.length ? ` + ${state.covars.map((c) => `${c.log ? "log " : ""}${indicatorLabel(c.ref.dataset, c.ref.indicator)}`).join(" + ")} (multivariable in panel)` : ""}`;
+    const stats = `β = ${f.slope.toFixed(3)} [${f.ci95[0].toFixed(3)}, ${f.ci95[1].toFixed(3)}], p ${f.p < 0.001 ? "< 0.001" : "= " + f.p.toFixed(3)}, R² = ${f.r2.toFixed(3)}, n = ${f.n}`;
+    const dsIds = [state.x, state.y, ...(state.covars ?? []).map((c) => c.ref)].filter((rr) => !isTimeRef(rr)).map((rr) => rr.dataset);
+    const datasets = [...new Set(dsIds)].map((id) => {
+      const m = manifestById.get(id);
+      return { name: m?.name ?? id, updated: m?.updated ?? "unknown" };
+    });
+    const text = citeAnalysis({
+      spec, stats, datasets,
+      url: `${location.origin}/lab?${serializeState(state)}`,
+      retrieved: new Date().toISOString().slice(0, 10),
+    });
+    try {
+      await navigator.clipboard.writeText(text);
+      setToast("Citation copied — model, vintages, and permalink");
+      setTimeout(() => setToast(null), 2500);
+    } catch {
+      window.prompt("Copy citation:", text);
+    }
+  };
+
   /** Tier 2: per-region fits (min n = 8 per group to avoid noise fits). */
   const groupFits = useMemo(() => {
     if (state.type !== "scatter" || state.groupBy !== "region" || scatterPoints.length < 3) return null;
@@ -339,8 +383,8 @@ export default function LabShell() {
     const url = `${location.origin}/lab?${serializeState(state)}`;
     try {
       await navigator.clipboard.writeText(url);
-      setToast(true);
-      setTimeout(() => setToast(false), 2500);
+      setToast("Link copied — paste it anywhere");
+      setTimeout(() => setToast(null), 2500);
     } catch {
       window.prompt("Copy link:", url);
     }
@@ -901,6 +945,9 @@ export default function LabShell() {
             multi={multi ? { fit: multi.fit, n: multi.joined.length } : null}
             groupFits={groupFits}
             onExportJoined={multi ? exportJoined : undefined}
+            rBootCI={rBootCI}
+            influenceInfo={influenceInfo}
+            onCite={citeThis}
           />
         )}
         <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-modeled-ink">
@@ -918,7 +965,7 @@ export default function LabShell() {
         role="status"
         className={`fixed bottom-6 left-1/2 -translate-x-1/2 rounded-[6px] bg-espresso px-4 py-2 text-sm text-porcelain shadow-lg transition-opacity ${toast ? "opacity-100" : "pointer-events-none opacity-0"}`}
       >
-        Link copied — paste it anywhere
+        {toast}
       </div>
     </div>
   );

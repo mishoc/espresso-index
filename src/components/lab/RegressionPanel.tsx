@@ -2,7 +2,13 @@
 
 import { countryName } from "@/lib/lab-data";
 import type { JoinedPoint } from "@/lib/lab-join";
-import { slopeInWords, type MultiFit, type ScatterAnalysis } from "@/lib/lab-stats";
+import {
+  slopeInWords,
+  type InfluencePoint,
+  type MultiFit,
+  type OlsFit,
+  type ScatterAnalysis,
+} from "@/lib/lab-stats";
 
 const fmtP = (p: number) => (p < 0.001 ? "< 0.001" : p.toFixed(3));
 const fmt = (v: number, d = 3) =>
@@ -17,6 +23,9 @@ export default function RegressionPanel({
   multi,
   groupFits,
   onExportJoined,
+  rBootCI,
+  influenceInfo,
+  onCite,
 }: {
   analysis: ScatterAnalysis<JoinedPoint>;
   xLabel: string;
@@ -24,6 +33,13 @@ export default function RegressionPanel({
   multi?: { fit: MultiFit; n: number } | null;
   groupFits?: { region: string; analysis: ScatterAnalysis<JoinedPoint> }[] | null;
   onExportJoined?: () => void;
+  rBootCI?: [number, number] | null;
+  influenceInfo?: {
+    flagged: InfluencePoint<JoinedPoint>[];
+    threshold: number;
+    refit: OlsFit | null;
+  } | null;
+  onCite?: () => void;
 }) {
   const { fit, mode, spearman, dropped, residuals } = analysis;
   if (!fit) return null;
@@ -35,9 +51,19 @@ export default function RegressionPanel({
 
   return (
     <section className="mt-4 rounded-card border border-card-border bg-paper p-4 text-sm">
-      <h2 className="font-medium">
-        OLS: <span className="tabular">{yTerm} ~ {xTerm}</span>
-      </h2>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="font-medium">
+          OLS: <span className="tabular">{yTerm} ~ {xTerm}</span>
+        </h2>
+        {onCite && (
+          <button
+            onClick={onCite}
+            className="rounded-[6px] border border-card-border px-2.5 py-1 text-xs hover:border-espresso hover:text-espresso"
+          >
+            Cite this analysis
+          </button>
+        )}
+      </div>
       <div className="mt-2 overflow-x-auto">
         <table className="tabular w-full text-left">
           <thead>
@@ -69,6 +95,13 @@ export default function RegressionPanel({
         </table>
       </div>
       <p className="mt-2 text-roast">{slopeInWords(fit, mode, xLabel, yLabel)}</p>
+      {rBootCI && (
+        <p className="mt-1 text-xs text-modeled-ink">
+          Bootstrap 95% CI for Pearson r:{" "}
+          <span className="tabular">[{rBootCI[0].toFixed(3)}, {rBootCI[1].toFixed(3)}]</span>{" "}
+          (1,000 resamples, percentile method).
+        </p>
+      )}
       {dropped > 0 && (
         <p className="mt-1 text-xs text-modeled-ink">
           {dropped} point{dropped === 1 ? "" : "s"} with non-positive values excluded by the log transform.
@@ -102,6 +135,41 @@ export default function RegressionPanel({
           </table>
         </div>
       </details>
+
+      {influenceInfo && influenceInfo.flagged.length > 0 && (
+        <details className="mt-3">
+          <summary className="cursor-pointer font-medium">
+            Influential points — Cook&apos;s D above 4/n (
+            {influenceInfo.flagged.length} flagged)
+          </summary>
+          <div className="mt-2 overflow-x-auto">
+            <table className="tabular w-full text-left">
+              <thead>
+                <tr className="border-b border-card-border text-xs text-modeled-ink uppercase tracking-wide">
+                  <th className="py-1 pr-4">Country</th>
+                  <th className="py-1 pr-4">Cook&apos;s D</th>
+                  <th className="py-1">Leverage</th>
+                </tr>
+              </thead>
+              <tbody>
+                {influenceInfo.flagged.map((p) => (
+                  <tr key={p.orig.iso3} className="border-b border-card-border/60">
+                    <td className="py-1 pr-4">{countryName(p.orig.iso3)}</td>
+                    <td className="py-1 pr-4">{p.cooksD.toFixed(3)}</td>
+                    <td className="py-1">{p.leverage.toFixed(3)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p className="mt-1 text-xs text-modeled-ink">
+            {influenceInfo.refit
+              ? `Excluding these points, the slope moves from ${fmt(fit.slope)} to ${fmt(influenceInfo.refit.slope)} (n = ${influenceInfo.refit.n}). A large move means the headline fit leans on a few countries.`
+              : "Too few points remain to refit without them."}{" "}
+            Threshold 4/n = {influenceInfo.threshold.toFixed(3)}.
+          </p>
+        </details>
+      )}
 
       {groupFits && groupFits.length > 0 && (
         <div className="mt-4">

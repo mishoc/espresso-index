@@ -315,3 +315,87 @@ export function olsMulti(rows: number[][], y: number[], names: string[]): MultiF
   });
   return { n, k, df, coefs, r2: 1 - sse / sst, adjR2: 1 - ((1 - (1 - sse / sst)) * (n - 1)) / df, fitted, residuals };
 }
+
+/* ---------- Tier 3: influence, bootstrap, citation ---------- */
+
+export interface InfluencePoint<T> {
+  orig: T;
+  leverage: number;
+  cooksD: number;
+}
+
+/** Cook's distance for the bivariate OLS. Convention: flag D > 4/n. */
+export function influence<T extends XY>(
+  transformed: { t: XY; orig: T }[],
+  fit: OlsFit,
+): InfluencePoint<T>[] {
+  const n = transformed.length;
+  const mx = transformed.reduce((s, d) => s + d.t.x, 0) / n;
+  const sxx = transformed.reduce((s, d) => s + (d.t.x - mx) ** 2, 0);
+  const sse = transformed.reduce((s, d) => {
+    const e = d.t.y - (fit.intercept + fit.slope * d.t.x);
+    return s + e * e;
+  }, 0);
+  const s2 = sse / fit.df;
+  const k = 2; // parameters
+  return transformed.map((d) => {
+    const h = 1 / n + (d.t.x - mx) ** 2 / sxx;
+    const e = d.t.y - (fit.intercept + fit.slope * d.t.x);
+    const cooksD = s2 === 0 ? 0 : ((e * e) / (k * s2)) * (h / (1 - h) ** 2);
+    return { orig: d.orig, leverage: h, cooksD };
+  });
+}
+
+export const cooksThreshold = (n: number) => 4 / n;
+
+/** Deterministic PRNG (mulberry32) so bootstrap CIs are stable per render
+ *  and testable. */
+export function mulberry32(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0; a = (a + 0x6d2b79f5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+function pearsonOf(pts: XY[]): number {
+  const n = pts.length;
+  const mx = pts.reduce((s, p) => s + p.x, 0) / n;
+  const my = pts.reduce((s, p) => s + p.y, 0) / n;
+  let sxy = 0, sxx = 0, syy = 0;
+  for (const p of pts) {
+    sxy += (p.x - mx) * (p.y - my);
+    sxx += (p.x - mx) ** 2;
+    syy += (p.y - my) ** 2;
+  }
+  return sxx === 0 || syy === 0 ? NaN : sxy / Math.sqrt(sxx * syy);
+}
+
+/** Percentile bootstrap 95% CI for Pearson r (in the given points' space). */
+export function bootstrapPearsonCI(
+  points: XY[],
+  reps = 1000,
+  seed = 42,
+): [number, number] | null {
+  const n = points.length;
+  if (n < 10) return null; // too small for a meaningful bootstrap
+  const rand = mulberry32(seed);
+  const rs: number[] = [];
+  for (let b = 0; b < reps; b++) {
+    const sample: XY[] = Array.from({ length: n }, () => points[Math.floor(rand() * n)]);
+    const r = pearsonOf(sample);
+    if (Number.isFinite(r)) rs.push(r);
+  }
+  rs.sort((a, b) => a - b);
+  return [rs[Math.floor(rs.length * 0.025)], rs[Math.floor(rs.length * 0.975)]];
+}
+
+/** Slope sensitivity: refit without the flagged points. */
+export function slopeWithout<T extends XY>(
+  transformed: { t: XY; orig: T }[],
+  exclude: Set<T>,
+): OlsFit | null {
+  return olsDetailed(transformed.filter((d) => !exclude.has(d.orig)).map((d) => d.t));
+}

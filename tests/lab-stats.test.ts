@@ -129,3 +129,72 @@ describe("olsMulti — verified against numpy.linalg.lstsq (fixture computed ind
     expect(olsMulti([[1, 2], [2, 3]], [1, 2], ["a", "b"])).toBeNull();
   });
 });
+
+describe("influence — Cook's distance flags the planted outlier", () => {
+  it("an off-trend high-leverage point dominates Cook's D", async () => {
+    const { transformPoints, olsDetailed, influence, cooksThreshold } = await import("@/lib/lab-stats");
+    // Clean line y = x for x=1..10, plus one wild point far in x and off-trend.
+    const pts = [...Array.from({ length: 10 }, (_, i) => ({ x: i + 1, y: i + 1 })), { x: 30, y: 2 }];
+    const t = transformPoints(pts, { logX: false, logY: false });
+    const fit = olsDetailed(t.map((d) => d.t))!;
+    const inf = influence(t, fit);
+    const worst = [...inf].sort((a, b) => b.cooksD - a.cooksD)[0];
+    expect(worst.orig.x).toBe(30);
+    expect(worst.cooksD).toBeGreaterThan(cooksThreshold(pts.length) * 10);
+    // clean points on their own line: everyone else far below threshold behavior
+    const second = [...inf].sort((a, b) => b.cooksD - a.cooksD)[1];
+    expect(worst.cooksD / Math.max(second.cooksD, 1e-9)).toBeGreaterThan(5);
+  });
+
+  it("leverage sums to k (=2) across points", async () => {
+    const { transformPoints, olsDetailed, influence } = await import("@/lib/lab-stats");
+    const pts = Array.from({ length: 12 }, (_, i) => ({ x: i, y: 3 * i + ((i % 3) - 1) }));
+    const t = transformPoints(pts, { logX: false, logY: false });
+    const inf = influence(t, olsDetailed(t.map((d) => d.t))!);
+    const hSum = inf.reduce((s, p) => s + p.leverage, 0);
+    expect(hSum).toBeCloseTo(2, 10);
+  });
+});
+
+describe("bootstrapPearsonCI", () => {
+  const noisy = Array.from({ length: 60 }, (_, i) => {
+    // deterministic pseudo-noise, no Math.random in tests
+    const wiggle = Math.sin(i * 12.9898) * 43758.5453;
+    return { x: i, y: i * 0.5 + (wiggle - Math.floor(wiggle) - 0.5) * 10 };
+  });
+
+  it("is deterministic given a seed and brackets the point estimate", async () => {
+    const { bootstrapPearsonCI, olsDetailed } = await import("@/lib/lab-stats");
+    const a = bootstrapPearsonCI(noisy, 500, 7)!;
+    const b = bootstrapPearsonCI(noisy, 500, 7)!;
+    expect(a).toEqual(b);
+    const r = olsDetailed(noisy)!.r;
+    expect(a[0]).toBeLessThan(r);
+    expect(a[1]).toBeGreaterThan(r);
+    expect(a[1] - a[0]).toBeGreaterThan(0.01);
+    expect(a[1] - a[0]).toBeLessThan(0.6);
+  });
+
+  it("returns null for tiny samples", async () => {
+    const { bootstrapPearsonCI } = await import("@/lib/lab-stats");
+    expect(bootstrapPearsonCI(noisy.slice(0, 5))).toBeNull();
+  });
+});
+
+describe("citeAnalysis", () => {
+  it("carries spec, stats, every dataset vintage, and the permalink", async () => {
+    const { citeAnalysis } = await import("@/lib/lab-export");
+    const c = citeAnalysis({
+      spec: "OLS: Espresso price (USD) ~ log(GDP per capita)",
+      stats: "β = 0.406 [0.351, 0.461], R² = 0.525, n = 194",
+      datasets: [
+        { name: "The Espresso Index", updated: "2026-07-20" },
+        { name: "GDP per capita (World Bank)", updated: "2026-07-24" },
+      ],
+      url: "https://www.espressoindex.org/lab?type=scatter&x=wdi-gdppc.gdp_per_capita_usd&y=espresso.priceUSD",
+      retrieved: "2026-08-27",
+    });
+    for (const frag of ["~ log(GDP", "β = 0.406", "updated 2026-07-20", "updated 2026-07-24", "Retrieved 2026-08-27", "espressoindex.org/lab"])
+      expect(c).toContain(frag);
+  });
+});
