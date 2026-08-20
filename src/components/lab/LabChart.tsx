@@ -4,7 +4,8 @@ import { useEffect, useRef } from "react";
 import * as Plot from "@observablehq/plot";
 import type { TidyRow } from "@/lib/datalab-types";
 import { countryName, indicatorLabel, REGION_BY_ISO3, TIER_BY_ISO3 } from "@/lib/lab-data";
-import { olsFit, type JoinedPoint } from "@/lib/lab-join";
+import type { JoinedPoint } from "@/lib/lab-join";
+import type { ScatterAnalysis } from "@/lib/lab-stats";
 import { isTimeRef, type LabState } from "@/lib/lab-state";
 
 /** Categorical ramp: crema first (§4.2), then colorblind-safe. */
@@ -158,13 +159,31 @@ function buildScatterPlot(
   points: JoinedPoint[],
   width: number,
   ghostYear?: string,
+  analysis?: ScatterAnalysis<JoinedPoint> | null,
 ) {
   const timeX = isTimeRef(state.x);
   const espressoAxis =
     state.x.dataset === "espresso" || state.y.dataset === "espresso";
-  const fit = state.trend ? olsFit(points) : null;
-  const xs = points.map((p) => p.x);
+  // Trend + labels come from the transform-space analysis (log bug fix):
+  // the fitted line is computed in the same space the axes display.
+  const fit = state.trend ? (analysis?.fit ?? null) : null;
+  const mode = analysis?.mode ?? { logX: false, logY: false };
+  const xs = points.map((p) => p.x).filter((v) => !mode.logX || v > 0);
   const [x0, x1] = [Math.min(...xs), Math.max(...xs)];
+  const trendPts = fit
+    ? Array.from({ length: 60 }, (_, i) => {
+        const f = i / 59;
+        const x = mode.logX ? x0 * Math.pow(x1 / x0, f) : x0 + (x1 - x0) * f;
+        const ty = fit.intercept + fit.slope * (mode.logX ? Math.log(x) : x);
+        return { x, y: mode.logY ? Math.exp(ty) : ty };
+      })
+    : [];
+  const labelPts = state.labels && analysis
+    ? [...analysis.residuals]
+        .sort((a, b) => Math.abs(b.residual) - Math.abs(a.residual))
+        .slice(0, 6)
+        .map((r) => r.orig)
+    : [];
 
   return Plot.plot({
     width,
@@ -175,13 +194,13 @@ function buildScatterPlot(
     symbol: espressoAxis ? { legend: true } : undefined,
     x: {
       grid: true,
-      type: timeX ? "linear" : state.scale === "log" ? "log" : "linear",
+      type: timeX ? "linear" : mode.logX ? "log" : "linear",
       tickFormat: timeX ? "d" : undefined,
       label: timeX ? "Year" : indicatorLabel(state.x.dataset, state.x.indicator),
     },
     y: {
       grid: true,
-      type: !timeX || state.scale !== "log" ? "linear" : "log",
+      type: mode.logY ? "log" : "linear",
       label: indicatorLabel(state.y.dataset, state.y.indicator),
     },
     marks: [
@@ -198,15 +217,22 @@ function buildScatterPlot(
             }),
           ]
         : []),
-      ...(fit
+      ...(trendPts.length
+        ? [Plot.line(trendPts, { x: "x", y: "y", stroke: "#6B4A32", strokeDasharray: "4 3" })]
+        : []),
+      ...(labelPts.length
         ? [
-            Plot.line(
-              [
-                { x: x0, y: fit.a + fit.b * x0 },
-                { x: x1, y: fit.a + fit.b * x1 },
-              ],
-              { x: "x", y: "y", stroke: "#6B4A32", strokeDasharray: "4 3" },
-            ),
+            Plot.text(labelPts, {
+              x: "x",
+              y: "y",
+              text: (d: JoinedPoint) => countryName(d.iso3),
+              dy: -9,
+              fontSize: 10,
+              fill: "#2B1B12",
+              stroke: "#faf6f0",
+              strokeWidth: 3,
+              paintOrder: "stroke",
+            }),
           ]
         : []),
       Plot.dot(points, {
@@ -232,6 +258,7 @@ export default function LabChart({
   linePoints,
   barPoints,
   scatterPoints,
+  scatterAnalysis,
   ghostYear,
   ariaLabel,
 }: {
@@ -239,6 +266,7 @@ export default function LabChart({
   linePoints?: LinePoint[];
   barPoints?: BarPoint[];
   scatterPoints?: JoinedPoint[];
+  scatterAnalysis?: ScatterAnalysis<JoinedPoint> | null;
   ghostYear?: string;
   ariaLabel: string;
 }) {
@@ -253,7 +281,7 @@ export default function LabChart({
         state.type === "bar" && barPoints
           ? buildBarPlot(state, barPoints, width)
           : state.type === "scatter" && scatterPoints
-            ? buildScatterPlot(state, scatterPoints, width, ghostYear)
+            ? buildScatterPlot(state, scatterPoints, width, ghostYear, scatterAnalysis)
             : buildLinePlot(state, linePoints ?? [], width);
       // Plot labels its mark groups with aria-label on role-less <g>,
       // which axe rejects (aria-prohibited-attr). role=group permits it.
@@ -266,7 +294,7 @@ export default function LabChart({
     const ro = new ResizeObserver(render);
     ro.observe(el);
     return () => ro.disconnect();
-  }, [state, linePoints, barPoints, scatterPoints, ghostYear]);
+  }, [state, linePoints, barPoints, scatterPoints, scatterAnalysis, ghostYear]);
 
   return (
     <div

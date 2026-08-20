@@ -18,7 +18,12 @@ export interface LabState {
   y: SeriesRef;
   /** iso3 list, or "all" */
   countries: string[] | "all";
+  /** scatter: log X. (time-X charts: applies to Y — legacy semantic.) */
   scale: "linear" | "log";
+  /** scatter: log Y. */
+  logY: boolean;
+  /** scatter: label the largest-residual countries on the chart. */
+  labels: boolean;
   yoy: boolean;
   index100: boolean;
   trend: boolean;
@@ -45,6 +50,8 @@ export const DEFAULT_STATE: LabState = {
   y: { dataset: "wdi-gdppc", indicator: "gdp_per_capita_usd" },
   countries: "all",
   scale: "linear",
+  logY: false,
+  labels: false,
   yoy: false,
   index100: false,
   trend: false,
@@ -91,6 +98,8 @@ export function parseState(params: URLSearchParams): LabState {
   }
 
   if (params.get("scale") === "log") s.scale = "log";
+  s.logY = params.get("logy") === "1";
+  s.labels = params.get("labels") === "1";
   s.yoy = params.get("yoy") === "1";
   s.index100 = params.get("index100") === "1";
   s.trend = params.has("trend") ? params.get("trend") === "1" : s.trend;
@@ -131,6 +140,8 @@ export function serializeState(s: LabState): string {
   }
   p.set("countries", s.countries === "all" ? "all" : s.countries.join(","));
   if (s.scale === "log") p.set("scale", "log");
+  if (s.logY) p.set("logy", "1");
+  if (s.labels) p.set("labels", "1");
   if (s.yoy) p.set("yoy", "1");
   if (s.index100) p.set("index100", "1");
   if (s.type === "scatter" && s.trend !== DEFAULT_STATE.trend)

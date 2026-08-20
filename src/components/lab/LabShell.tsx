@@ -7,13 +7,16 @@ import type { TidyRow } from "@/lib/datalab-types";
 import {
   attribution,
   countryName,
+  indicatorLabel,
   COUNTRIES_BY_REGION,
   COUNTRY_NAMES,
   loadDataset,
   manifest,
   manifestById,
 } from "@/lib/lab-data";
-import { joinScatter, pearsonR, timeScatter } from "@/lib/lab-join";
+import { joinScatter, timeScatter } from "@/lib/lab-join";
+import { analyzeScatter } from "@/lib/lab-stats";
+import RegressionPanel from "./RegressionPanel";
 import { toIndex100, toYoY } from "@/lib/lab-transform";
 import { downloadCsv, svgToPng } from "@/lib/lab-export";
 import presetsJson from "../../../data/presets.json";
@@ -240,7 +243,18 @@ export default function LabShell() {
         : state.type === "bar"
           ? barPoints.length
           : linePoints.length;
-  const r = state.type === "scatter" ? pearsonR(scatterPoints) : NaN;
+  const scatterMode = useMemo(
+    () => ({
+      logX: !isTimeRef(state.x) && state.scale === "log",
+      logY: state.logY || (isTimeRef(state.x) && state.scale === "log"),
+    }),
+    [state.x, state.scale, state.logY],
+  );
+  const scatterAnalysis = useMemo(
+    () => (state.type === "scatter" && scatterPoints.length >= 3 ? analyzeScatter(scatterPoints, scatterMode) : null),
+    [state.type, scatterPoints, scatterMode],
+  );
+  const r = scatterAnalysis?.fit?.r ?? NaN;
 
   const selected = useMemo(
     () => (state.countries === "all" ? [] : (state.countries as string[])),
@@ -295,10 +309,16 @@ export default function LabShell() {
 
   const exportCsv = () => {
     if (state.type === "scatter") {
+      const resByIso = new Map(
+        (scatterAnalysis?.residuals ?? []).map((r) => [r.orig.iso3, r]),
+      );
       downloadCsv(
         "espresso-lab-scatter.csv",
-        ["iso3", "country", "x", "x_date", "y", "y_date"],
-        scatterPoints.map((p) => [p.iso3, countryName(p.iso3), p.x, p.xDate, p.y, p.yDate]),
+        ["iso3", "country", "x", "x_date", "y", "y_date", "fitted", "residual"],
+        scatterPoints.map((p) => {
+          const r = resByIso.get(p.iso3);
+          return [p.iso3, countryName(p.iso3), p.x, p.xDate, p.y, p.yDate, r ? r.fitted : "", r ? r.residual : ""];
+        }),
       );
     } else if (state.type === "map") {
       downloadCsv(
@@ -460,6 +480,42 @@ export default function LabShell() {
         </div>
 
         <div className="flex flex-col gap-1.5">
+          {state.type === "scatter" ? (
+            <>
+              {!isTimeRef(state.x) && (
+                <label className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    checked={state.scale === "log"}
+                    onChange={(e) => update({ scale: e.target.checked ? "log" : "linear" })}
+                  />
+                  Log X
+                </label>
+              )}
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={scatterMode.logY}
+                  onChange={(e) =>
+                    update(
+                      isTimeRef(state.x)
+                        ? { scale: e.target.checked ? "log" : "linear", logY: false }
+                        : { logY: e.target.checked },
+                    )
+                  }
+                />
+                Log Y
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={state.labels}
+                  onChange={(e) => update({ labels: e.target.checked })}
+                />
+                Label largest residuals
+              </label>
+            </>
+          ) : (
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"
@@ -469,12 +525,8 @@ export default function LabShell() {
               }
             />
             Log scale
-          {state.type === "scatter"
-            ? isTimeRef(state.x)
-              ? " (Y axis)"
-              : " (X axis)"
-            : ""}
           </label>
+          )}
           {isTimeChart && (
             <>
               <label className="flex items-center gap-2 text-sm">
@@ -647,9 +699,14 @@ export default function LabShell() {
         {state.type === "scatter" && load.phase === "ready" && pointCount >= 3 && (
           <p className="mb-1 text-right text-sm text-roast">
             {Number.isFinite(r) && (
-              <span className="tabular font-medium">r = {r.toFixed(2)}</span>
+              <span className="tabular font-medium">
+                r = {r.toFixed(2)}
+                {(scatterMode.logX || scatterMode.logY) && (
+                  <span className="font-normal text-modeled-ink"> (on log scale)</span>
+                )}
+              </span>
             )}{" "}
-            <span className="tabular text-modeled-ink">n = {pointCount}</span>
+            <span className="tabular text-modeled-ink">n = {scatterAnalysis?.fit?.n ?? pointCount}</span>
           </p>
         )}
         {load.phase === "loading" && (
@@ -689,6 +746,7 @@ export default function LabShell() {
                   linePoints={linePoints}
                   barPoints={barPoints}
                   scatterPoints={scatterPoints}
+                  scatterAnalysis={scatterAnalysis}
                   ghostYear={
                     state.type === "scatter"
                       ? (state.year ?? state.to)
@@ -703,6 +761,13 @@ export default function LabShell() {
               )}
             </div>
           ))}
+        {state.type === "scatter" && scatterAnalysis?.fit && load.phase === "ready" && pointCount >= 3 && (
+          <RegressionPanel
+            analysis={scatterAnalysis}
+            xLabel={isTimeRef(state.x) ? "year" : indicatorLabel(state.x.dataset, state.x.indicator)}
+            yLabel={indicatorLabel(state.y.dataset, state.y.indicator)}
+          />
+        )}
         <p className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-modeled-ink">
           <span>{attribution(attributionIds)}</span>
           <Link

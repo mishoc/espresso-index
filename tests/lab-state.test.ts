@@ -61,6 +61,15 @@ describe("lab URL state", () => {
     expect(serializeState(state)).toContain("x=time");
   });
 
+  it("round-trips logY and residual labels", () => {
+    const state = parse(
+      "type=scatter&x=wdi-gdppc.gdp_per_capita_usd&y=espresso.priceUSD&countries=all&scale=log&logy=1&labels=1&trend=1&year=2026",
+    );
+    expect(state.logY).toBe(true);
+    expect(state.labels).toBe(true);
+    expect(parse(serializeState(state))).toEqual(state);
+  });
+
   it("parseRef rejects malformed refs", () => {
     expect(parseRef("wdi-gdppc.gdp_per_capita_usd")).toEqual({
       dataset: "wdi-gdppc",
