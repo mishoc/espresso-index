@@ -12,7 +12,12 @@ export interface ExplainerMeta {
 
 /** Explicit registry (not fs.readdir) so the MDX modules are statically
  *  imported and bundled; add a line here when adding an article. */
-export const EXPLAINER_SLUGS = ["what-is-inequality", "how-its-measured", "kuznets-curve"] as const;
+export const EXPLAINER_SLUGS = [
+  "what-is-inequality",
+  "how-its-measured",
+  "kuznets-curve",
+  "reading-the-world-map",
+] as const;
 
 export async function loadExplainer(slug: string): Promise<{ meta: ExplainerMeta; Body: ComponentType } | null> {
   if (!(EXPLAINER_SLUGS as readonly string[]).includes(slug)) return null;

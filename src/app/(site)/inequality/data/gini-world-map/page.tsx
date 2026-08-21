@@ -34,6 +34,10 @@ export default function Page() {
             the SWIID country comparison
           </Link>
           . Background:{" "}
+          <Link href="/inequality/learn/reading-the-world-map" className="text-crema-ink underline underline-offset-2">
+            why inequality differs so much across countries
+          </Link>{" "}
+          and{" "}
           <Link href="/inequality/learn/how-its-measured" className="text-crema-ink underline underline-offset-2">
             how inequality is measured
           </Link>

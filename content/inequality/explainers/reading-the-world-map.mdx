@@ -1,0 +1,35 @@
+export const meta = {
+  slug: "reading-the-world-map",
+  title: "Why is inequality so different across countries?",
+  summary: "The world map of income inequality has a strong geography — southern Africa and Latin America darkest, central Europe palest. History, institutions, and redistribution each explain part of the pattern.",
+  audience_level: "intro",
+  sources: ["milanovic-2016", "acemoglu-robinson-2012", "solt-2020", "kuznets-1955"],
+};
+
+Open [the world map of income inequality](/inequality/data/gini-world-map) and a pattern jumps out before you read a single number. The darkest countries cluster in southern Africa — Namibia, Botswana, Eswatini, South Africa all report a <GlossaryTerm term="Gini coefficient">A single number from 0 (everyone has the same income) to 100 (one person has all of it) summarizing how far a society's income distribution is from perfect equality.</GlossaryTerm> in the mid-50s or higher in their most recent surveys — with a second dark band across Latin America. The palest countries sit in central and northern Europe: Slovakia, Slovenia, and Belarus all measure below 25. That is not noise. The gap between the top and bottom of the map is wider than the change any single country has experienced in decades.
+
+Why does the map look like this? No single cause explains it, but research points at three forces that each carry real weight.
+
+## History and institutions cast long shadows
+
+The most unequal region on the map is also the one whose economies were built, for generations, on institutions designed to concentrate resources. <Cite id="acemoglu-robinson-2012" /> argue that "extractive" institutions — rules built to channel income and power to a narrow group, from colonial land dispossession to apartheid's explicit racial exclusions in South Africa — leave marks that outlast the institutions themselves, because concentrated wealth buys influence over the rules that follow. Latin America's high inequality has a related institutional history rooted in colonial-era land and labor systems.
+
+These are arguments about origins, not destiny. Brazil's disposable-income Gini fell from about 54 in 2000 to about 45 by the mid-2010s in the standardized SWIID data — one of the larger sustained declines on record — which is a reminder that the map moves.
+
+## Rich countries are not born equal — they redistribute
+
+Here is the map's least obvious lesson, and you need a second dataset to see it. Before taxes and transfers, the rich democracies are not that different from each other: in the SWIID data, Germany's *market-income* Gini (51.7) and the United States' (52.5) are nearly identical. After taxes and transfers, they diverge sharply — Germany lands at 30.9 disposable, the United States at 39.4. <Cite id="solt-2020" /> built the standardization that makes this before/after comparison possible across countries. Much of Europe's paleness on the map is not a paler market economy; it is redistribution. (The map shows the World Bank's survey-based figures, which for most countries reflect income or consumption after transfers — [the country comparison chart](/inequality/data/country-comparison) lets you see both sides.)
+
+## Development changes the picture — but not on a fixed track
+
+The oldest hypothesis about the map's geography is that inequality follows a development arc: rising as a country industrializes, falling later. That is [the Kuznets curve](/inequality/learn/kuznets-curve), from <Cite id="kuznets-1955" />, and the evidence for it is genuinely mixed — the library flags it as contested. What survives is a weaker claim: where a country sits in its development, and *where its people sit in the global distribution*, matters enormously. <Cite id="milanovic-2016" /> shows that in the modern world, most of the inequality between people globally comes from *which country they live in*, not from their position within it — being born in a poor country sets your income prospects more than being born poor in a rich one.
+
+## How to read the map without fooling yourself
+
+Three cautions, all covered in more depth in [how inequality is measured](/inequality/learn/how-its-measured):
+
+1. **Survey years differ.** Each country shows its most recent household survey — for some that is 2024, for others the mid-2010s. Check the year before comparing neighbors.
+2. **Income and consumption are not the same thing.** Some countries survey income, others consumption spending, and consumption-based Ginis tend to run lower. Cross-region comparisons carry that wrinkle.
+3. **A Gini can hide the very top.** Household surveys undercount the richest; two countries with the same Gini can have very different top-1% shares.
+
+Then go look for yourself: [the world map](/inequality/data/gini-world-map) for the cross-section, [the country comparison](/inequality/data/country-comparison) for the trajectories, and [the Data Lab](/lab?type=map&series=wdi-gini.gini_index&countries=all) if you want to plot the Gini index against anything else we track.
